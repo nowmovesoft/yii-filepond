@@ -1,5 +1,5 @@
 # yii-filepond
-FilePond wrapper for Yii2 Framework
+Yii2 module for [FilePond](https://pqina.nl/filepond/).
 
 ## Disclaimer
 
