@@ -1,0 +1,50 @@
+{
+    "name": "nowmovesoft/yii-filepond",
+    "description": "Yii2 module for FilePond",
+    "keywords": [
+        "yii2",
+        "filepond",
+        "file upload",
+        "adapter",
+        "connection",
+        "extension",
+        "library",
+        "module"
+    ],
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Michael Naumov",
+            "email": "vommuan@gmail.com",
+            "homepage": "http://mnaumov.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/nowmovesoft/yii-filepond/issues?state=open",
+        "wiki": "https://github.com/nowmovesoft/yii-filepond/wiki",
+        "source": "https://github.com/nowmovesoft/yii-filepond"
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.2",
+        "yiisoft/yii2": "~2.0.14",
+        "nowmovesoft/yii-filepond-assets": "^1.1"
+    },
+    "require-dev": {
+        "codeception/codeception": "^4.0",
+        "codeception/module-yii2": "^1.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "nms\\filepond\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
+}
