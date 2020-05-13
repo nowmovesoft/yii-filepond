@@ -15,7 +15,7 @@ class ValidatorHelper
      * @param string $validatorName Class name of validator
      * @return yii\validators\Validator|null
      */
-    public static function getValidator($model, $attribute, $validatorName)
+    public static function get($model, $attribute, $validatorName)
     {
         if (!isset($model, $attribute) || empty($validatorName)) {
             return null;
