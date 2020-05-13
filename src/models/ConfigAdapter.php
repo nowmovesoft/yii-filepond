@@ -2,13 +2,10 @@
 
 namespace nms\filepond\models;
 
-use nms\filepond\helpers\ValidatorHelper;
-use nms\filepond\models\File;
 use nms\filepond\models\Session;
 use nms\filepond\Module;
 use yii\base\Model;
 use yii\helpers\FileHelper;
-use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
 use yii\web\JsExpression;
@@ -37,9 +34,48 @@ class ConfigAdapter extends Model
     public $filePond;
 
     /**
-     * @var FilepondWidget
+     * Adds validation rules for FilePond by model.
+     * @param FilepondValidator $validator
      */
-    public $widget;
+    public function addValidatorOptions($validator)
+    {
+        if (is_null($validator) || !$validator->enableClientValidation) {
+            return;
+        }
+
+        $session = new Session(['validator' => $validator]);
+        $session->saveParams();
+
+        if (!isset($this->filePond['acceptedFileTypes'])) {
+            $mimeTypes = $validator->mimeTypes;
+
+            if (!empty($validator->extensions)) {
+                foreach ($validator->extensions as $extension) {
+                    $mimeTypes[] = FileHelper::getMimeTypeByExtension("file.{$extension}");
+                }
+            }
+
+            if (!empty($mimeTypes)) {
+                $this->filePond['acceptedFileTypes'] = $mimeTypes;
+            }
+        }
+
+        if (!isset($this->filePond['minFileSize'])) {
+            $this->filePond['minFileSize'] = $validator->minSize;
+        }
+
+        if (!isset($this->filePond['maxFileSize'])) {
+            $this->filePond['maxFileSize'] = $validator->getSizeLimit();
+        }
+
+        if (!isset($this->filePond['allowMultiple'], $this->filePond['maxFiles']) && 1 !== $validator->maxFiles) {
+            $this->filePond['allowMultiple'] = true;
+
+            if (0 !== $validator->maxFiles) {
+                $this->filePond['maxFiles'] = $validator->maxFiles;
+            }
+        }
+    }
 
     /**
      * Adds server options for FilePond
@@ -80,85 +116,6 @@ class ConfigAdapter extends Model
 
             $this->filePond['server'][$endpoint] = $options;
         }
-    }
-
-    /**
-     * Adds validation rules for FilePond by model.
-     */
-    public function addValidatorOptions()
-    {
-        $validator = ValidatorHelper::getValidator($this->widget->model, $this->widget->attribute, 'nms\filepond\validators\FilepondValidator');
-
-        if (is_null($validator) || !$validator->enableClientValidation) {
-            return;
-        }
-
-        if (!isset($this->filePond['acceptedFileTypes'])) {
-            $mimeTypes = $validator->mimeTypes;
-
-            if (!empty($validator->extensions)) {
-                foreach ($validator->extensions as $extension) {
-                    $mimeTypes[] = FileHelper::getMimeTypeByExtension("file.{$extension}");
-                }
-            }
-
-            if (!empty($mimeTypes)) {
-                $this->filePond['acceptedFileTypes'] = $mimeTypes;
-            }
-        }
-
-        if (!isset($this->filePond['minFileSize'])) {
-            $this->filePond['minFileSize'] = $validator->minSize;
-        }
-
-        if (!isset($this->filePond['maxFileSize'])) {
-            $this->filePond['maxFileSize'] = $validator->getSizeLimit();
-        }
-
-        if (!isset($this->filePond['allowMultiple'], $this->filePond['maxFiles']) && 1 !== $validator->maxFiles) {
-            $this->filePond['allowMultiple'] = true;
-
-            if (0 !== $validator->maxFiles) {
-                $this->filePond['maxFiles'] = $validator->maxFiles;
-            }
-        }
-    }
-
-    /**
-     * Initialize connection type and data for each of these types.
-     */
-    public function initConnection()
-    {
-        $connection['model'] = new File();
-        $connection['multiple'] = isset($this->filePond['maxFiles']);
-
-        if (!isset($this->widget->model, $this->widget->attribute, $this->widget->field)) {
-            $connection['standalone'] = true;
-            $connection['formId'] = $widget->id;
-            $connection['fieldId'] = Html::getInputId($connection['model'], 'file');
-            return;
-        }
-
-        $session = new Session([
-            'validator' => ValidatorHelper::getValidator($this->widget->model, $this->widget->attribute, 'nms\filepond\validators\FilepondValidator'),
-        ]);
-
-        $session->saveParams();
-
-        $connection['formId'] = $this->widget->field->form->id;
-        $connection['fieldId'] = Html::getInputId($this->widget->model, $this->widget->attribute);
-        $connection['fieldName'] = Html::getInputName($this->widget->model, $this->widget->attribute . ($connection['multiple'] ? '[]' : ''));
-
-        return $connection;
-    }
-
-    /**
-     * Gets FilePond configuration
-     * @return array
-     */
-    public function get()
-    {
-        return $this->filePond;
     }
 
     /**
