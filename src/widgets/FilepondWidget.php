@@ -47,8 +47,8 @@ class FilepondWidget extends InputWidget
             )
         );
 
+        $this->config->addServerOptions();
         $this->initConnection(isset($this->config->filePond['maxFiles']));
-        $this->config->addServerOptions($this->connection);
     }
 
     /**
@@ -60,31 +60,12 @@ class FilepondWidget extends InputWidget
         $this->connection['model'] = new File();
 
         if (isset($this->model, $this->attribute, $this->field)) {
-            $this->initInlineForm($multiple);
+            $this->connection['formId'] = $this->field->form->id;
+            $this->connection['fieldName'] = Html::getInputName($this->model, $this->attribute . ($multiple ? '[]' : ''));
         } else {
-            $this->initStandaloneForm();
+            $this->connection['standalone'] = true;
+            $this->connection['formId'] = $this->id;
         }
-    }
-
-    /**
-     * Initializes connection parameters for standlalone form.
-     * @param boolean $multiple Is it a multiple files uploading?
-     */
-    private function initInlineForm($multiple)
-    {
-        $this->connection['formId'] = $this->field->form->id;
-        $this->connection['fieldId'] = Html::getInputId($this->model, $this->attribute);
-        $this->connection['fieldName'] = Html::getInputName($this->model, $this->attribute . ($multiple ? '[]' : ''));
-    }
-
-    /**
-     * Initializes connection parameters for standlalone form.
-     */
-    private function initStandaloneForm()
-    {
-        $this->connection['standalone'] = true;
-        $this->connection['formId'] = $this->id;
-        $this->connection['fieldId'] = Html::getInputId($this->connection['model'], 'file');
     }
 
     /**
@@ -105,7 +86,7 @@ class FilepondWidget extends InputWidget
         $this->view->registerJs("
             FilePond.create(document.querySelector('input[type=\"file\"]'), {$this->config->make()});
             $('#{$this->connection['formId']}').submit((event) => {
-                $('[name=\"File[file]\"]').attr('name', '{$this->connection['fieldName']}');
+                $('.filepond--data [name=\"File[file]\"]').attr('name', '{$this->connection['fieldName']}');
                 return true;
             });
         ", $this->view::POS_END, 'filepond-widget');
