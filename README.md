@@ -10,7 +10,7 @@ Module is under development. Do not use it on production.
 If you don't have [Composer](https://getcomposer.org/), you may install it by following instructions
 at [getcomposer.org](https://getcomposer.org/doc/00-intro.md).
 
-Add this code to the `repository` section of `composer.json`:
+Add this code to the `repositories` section of `composer.json`:
 
 ~~~
     "repositories": [
