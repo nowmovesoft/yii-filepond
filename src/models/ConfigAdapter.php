@@ -79,9 +79,8 @@ class ConfigAdapter extends Model
 
     /**
      * Adds server options for FilePond
-     * @param array $connetion Connection options
      */
-    public function addServerOptions($connection)
+    public function addServerOptions()
     {
         foreach (self::FILEPOND_ENDPOINTS as $endpoint) {
             if (isset($this->filePond['server'][$endpoint])) {
@@ -96,7 +95,7 @@ class ConfigAdapter extends Model
                 'onerror' => new JsExpression(
                     '(response) => {
                         response = JSON.parse(response);
-                        $("#' . $connection['formId'] . '").yiiActiveForm("updateAttribute", "' . $connection['fieldId'] . '", [response.message]);
+                        $("#file-file").siblings(".help-block").text(response.message);
                         return response.message;
                     }'
                 ),
@@ -107,6 +106,7 @@ class ConfigAdapter extends Model
                     $options['onload'] = new JsExpression(
                         '(response) => {
                             response = JSON.parse(response);
+                            $("#file-file").siblings(".help-block").text("");
                             return response.key;
                         }'
                     );
