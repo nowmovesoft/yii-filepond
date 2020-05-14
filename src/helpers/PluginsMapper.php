@@ -22,6 +22,9 @@ class PluginsMapper
         ],
         'nms\filepond\FilePosterAsset' => [
             'allowFilePoster',
+            'filePosterFilterItem',
+            'filePosterCalculateAverageImageColor',
+            'filePosterCrossOriginAttributeValue',
         ],
         'nms\filepond\FileRenameAsset' => [
             'allowFileRename',
@@ -30,7 +33,11 @@ class PluginsMapper
         'nms\filepond\FileSizeValidationAsset' => [
             'allowFileSizeValidation',
             'maxFileSize',
+            'minFileSize',
             'maxTotalFileSize',
+            'fileValidateSizeFilter',
+            'labelMinFileSizeExceeded',
+            'labelMinFileSize',
             'labelMaxFileSizeExceeded',
             'labelMaxFileSize',
             'labelMaxTotalFileSizeExceeded',
@@ -65,12 +72,16 @@ class PluginsMapper
         ],
         'nms\filepond\ImagePreviewAsset' => [
             'allowImagePreview',
+            'imagePreviewFilterItem',
             'imagePreviewMinHeight',
             'imagePreviewMaxHeight',
             'imagePreviewHeight',
             'imagePreviewMaxFileSize',
+            'imagePreviewZoomFactor',
+            'imagePreviewUpscale',
             'imagePreviewTransparencyIndicator',
             'imagePreviewMaxInstantPreviewFileSize',
+            'imagePreviewCalculateAverageImageColor',
             'imagePreviewMarkupShow',
             'imagePreviewMarkupFilter',
         ],
@@ -102,6 +113,7 @@ class PluginsMapper
         ],
         'nms\filepond\ImageTransformAsset' => [
             'allowImageTransform',
+            'imageTransformImageFilter',
             'imageTransformOutputMimeType',
             'imageTransformOutputQuality',
             'imageTransformOutputQualityMode',
@@ -115,6 +127,7 @@ class PluginsMapper
             'imageTransformBeforeCreateBlob',
             'imageTransformAfterCreateBlob',
             'imageTransformCanvasMemoryLimit',
+            'imageTransformCanvasBackgroundColor',
         ],
     ];
 
