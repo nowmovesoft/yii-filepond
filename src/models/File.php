@@ -37,14 +37,6 @@ class File extends Model
     private $session;
 
     /**
-     * {@inheritdoc}
-     */
-    public function init()
-    {
-        $this->initSession();
-    }
-
-    /**
      * Initialize session object
      */
     private function initSession()
@@ -58,15 +50,16 @@ class File extends Model
     public function rules()
     {
         return [
-            [['id', 'file'], 'safe'],
+            [['id'], 'string'],
+            [['file'], 'safe'],
         ];
     }
 
     /**
-     * Validates model data dynamically.
+     * Validates uploaded file dynamically.
      * @return boolean
      */
-    private function dynamicValidate()
+    private function validateFile()
     {
         $fileParams = $this->session->loadParams();
 
@@ -82,15 +75,8 @@ class File extends Model
 
         // Files are uploaded only this way: 1 file by 1 request.
         $fileParams['maxFiles'] = 1;
-
-        $model = new DynamicModel([
-            'id' => $this->id,
-            'file' => $this->file,
-        ]);
-
-        $model->addRule(['id'], 'string')
-            ->addRule(['file'], 'file', $fileParams)
-            ->validate();
+        $model = new DynamicModel(['file' => $this->file]);
+        $model->addRule(['file'], 'file', $fileParams)->validate();
 
         return !$model->hasErrors();
     }
@@ -103,8 +89,10 @@ class File extends Model
      */
     public function process()
     {
-        if (!$this->dynamicValidate()) {
-            throw new ErrorException("File validation failed.", 2001);
+        $this->initSession();
+
+        if (!$this->validateFile()) {
+            throw new ErrorException("File validation failed.", 2001); // TODO: display specific error
         }
 
         FileHelper::createDirectory(Yii::getAlias(self::TEMPORARY_STORAGE));
@@ -124,16 +112,62 @@ class File extends Model
      */
     public function revert()
     {
+        $this->initSession();
+
         if (empty($this->id)) {
             throw new ErrorException("FilePond can't revert file by empty identifier.", 2002);
         }
 
-        $status = FileHelper::unlink(Yii::getAlias(self::TEMPORARY_STORAGE) . '/' . $this->id);
+        $status = FileHelper::unlink($this->path);
 
         if ($status) {
             $this->session->dec();
         }
 
         return $status;
+    }
+
+    /**
+     * Removes file from temporary storage. Use this method in custom code.
+     */
+    public function remove()
+    {
+        if (empty($this->id)) {
+            throw new ErrorException("FilePond can't remove file by empty identifier.", 2003);
+        }
+
+        return FileHelper::unlink($this->path);
+    }
+
+    /**
+     * Gets temporary path of uploaded file
+     * @return string
+     */
+    public function getPath()
+    {
+        return Yii::getAlias(self::TEMPORARY_STORAGE) . '/' . $this->id;
+    }
+
+    /**
+     * Saves file by specific name.
+     * @param string $file the file path or a path alias used to save the uploaded file.
+     * @param boolean $deleteTempFile whether to delete the temporary file after saving.
+     * @return boolean
+     */
+    public function saveAs($file, $deleteTempFile = true)
+    {
+        $targetFile = Yii::getAlias($file);
+        FileHelper::createDirectory(dirname($targetFile));
+
+        return $deleteTempFile ? rename($this->path, $targetFile) : copy($this->path, $targetFile);
+    }
+
+    /**
+     * Creates file model by uploaded file identifier
+     * @param string $id Identifier
+     */
+    public static function getById($id)
+    {
+        return new self(['id' => $id]);
     }
 }
