@@ -24,9 +24,9 @@ class Session extends Model
     public $id;
 
     /**
-     * @var nms\filepond\validators\Validator
+     * @var yii\validators\Validator
      */
-    public $validator;
+    public $validator; // TODO: change it to save multiple validators
 
     /**
      * {@inheritdoc}

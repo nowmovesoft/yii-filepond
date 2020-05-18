@@ -4,7 +4,6 @@ namespace nms\filepond\widgets;
 
 use nms\filepond\assets\YiiFilePondAsset;
 use nms\filepond\helpers\PluginsMapper;
-use nms\filepond\helpers\ValidatorHelper;
 use nms\filepond\models\ConfigAdapter;
 use nms\filepond\models\File;
 use yii\helpers\Html;

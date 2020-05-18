@@ -35,17 +35,19 @@ class ConfigAdapter extends Model
     public $filePond;
 
     /**
-     * Adds validators options
+     * Adds validators options to FilePond instance.
      * @param Model $model
      * @param string $attribute
      */
     public function addValidators($model, $attribute)
     {
         $this->addFileValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'));
+        $this->addRequiredValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\RequiredValidator'));
+        $this->addImageValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\ImageValidator'));
     }
 
     /**
-     * Adds validation rules for FilePond by model.
+     * Adds `FileValidator` rules for FilePond instance.
      * @param nms\filepond\validators\FileValidator $validator
      */
     private function addFileValidator($validator)
@@ -87,6 +89,33 @@ class ConfigAdapter extends Model
             }
         }
     }
+
+    /**
+     * Adds `RequiredValidator` rules for FilePond instance.
+     * @param nms\filepond\validators\RequiredValidator $validator
+     */
+    private function addRequiredValidator($validator)
+    {
+        if (is_null($validator) || !$validator->enableClientValidation) {
+            return;
+        }
+
+        // TODO: implement
+    }
+
+    /**
+     * Adds `ImageValidator` rules for FilePond instance.
+     * @param nms\filepond\validators\ImageValidator $validator
+     */
+    private function addImageValidator($validator)
+    {
+        if (is_null($validator) || !$validator->enableClientValidation) {
+            return;
+        }
+
+        // TODO: implement
+    }
+
 
     /**
      * Adds server options for FilePond
