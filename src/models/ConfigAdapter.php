@@ -35,7 +35,7 @@ class ConfigAdapter extends Model
 
     /**
      * Adds validation rules for FilePond by model.
-     * @param FilepondValidator $validator
+     * @param nms\filepond\validators\FileValidator $validator
      */
     public function addValidatorOptions($validator)
     {

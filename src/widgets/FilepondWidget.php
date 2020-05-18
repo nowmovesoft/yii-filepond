@@ -43,7 +43,7 @@ class FilepondWidget extends InputWidget
             ValidatorHelper::get(
                 $this->model,
                 $this->attribute,
-                'nms\filepond\validators\FilepondValidator'
+                'nms\filepond\validators\FileValidator'
             )
         );
 

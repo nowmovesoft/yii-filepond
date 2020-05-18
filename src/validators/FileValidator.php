@@ -2,14 +2,13 @@
 
 namespace nms\filepond\validators;
 
-use yii\validators\FileValidator;
 use yii\validators\ValidationAsset;
 
 /**
  * Validates FilePond instance.
  * @author Michael Naumov <vommuan@gmail.com>
  */
-class FilepondValidator extends FileValidator
+class FileValidator extends \yii\validators\FileValidator
 {
     /**
      * {@inheritdoc}
