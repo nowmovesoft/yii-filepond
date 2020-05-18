@@ -2,6 +2,7 @@
 
 namespace nms\filepond\models;
 
+use nms\filepond\helpers\ValidatorHelper;
 use nms\filepond\models\Session;
 use nms\filepond\Module;
 use yii\base\Model;
@@ -34,10 +35,20 @@ class ConfigAdapter extends Model
     public $filePond;
 
     /**
+     * Adds validators options
+     * @param Model $model
+     * @param string $attribute
+     */
+    public function addValidators($model, $attribute)
+    {
+        $this->addFileValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'));
+    }
+
+    /**
      * Adds validation rules for FilePond by model.
      * @param nms\filepond\validators\FileValidator $validator
      */
-    public function addValidatorOptions($validator)
+    private function addFileValidator($validator)
     {
         if (is_null($validator) || !$validator->enableClientValidation) {
             return;
