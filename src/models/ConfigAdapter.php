@@ -121,7 +121,23 @@ class ConfigAdapter extends Model
             return;
         }
 
-        // TODO: implement
+        $this->addFileValidator($validator);
+
+        if (!isset($this->filePond['imageValidateSizeMaxHeight']) && isset($validator->maxHeight)) {
+            $this->filePond['imageValidateSizeMaxHeight'] = $validator->maxHeight;
+        }
+
+        if (!isset($this->filePond['imageValidateSizeMaxWidth']) && isset($validator->maxHeight)) {
+            $this->filePond['imageValidateSizeMaxWidth'] = $validator->maxWidth;
+        }
+
+        if (!isset($this->filePond['imageValidateSizeMinHeight']) && isset($validator->minHeight)) {
+            $this->filePond['imageValidateSizeMinHeight'] = $validator->minHeight;
+        }
+
+        if (!isset($this->filePond['imageValidateSizeMinWidth']) && isset($validator->minWidth)) {
+            $this->filePond['imageValidateSizeMinWidth'] = $validator->minWidth;
+        }
     }
 
 
