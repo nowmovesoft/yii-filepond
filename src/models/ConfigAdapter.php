@@ -2,6 +2,7 @@
 
 namespace nms\filepond\models;
 
+use nms\filepond\helpers\ValidatorHelper;
 use nms\filepond\models\Session;
 use nms\filepond\Module;
 use yii\base\Model;
@@ -34,17 +35,50 @@ class ConfigAdapter extends Model
     public $filePond;
 
     /**
-     * Adds validation rules for FilePond by model.
-     * @param FilepondValidator $validator
+     * Adds validators options to FilePond instance.
+     * @param Model $model
+     * @param string $attribute
      */
-    public function addValidatorOptions($validator)
+    public function addValidators($model, $attribute)
+    {
+        $validators = [
+            'required' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\RequiredValidator'),
+            'file' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'),
+            'image' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\ImageValidator'),
+        ];
+
+        $session = new Session(['validators' => $validators]);
+        $session->saveParams();
+
+        $this->addRequiredValidator($validators['required']);
+        $this->addFileValidator($validators['file']);
+        $this->addImageValidator($validators['image']);
+    }
+
+    /**
+     * Adds `RequiredValidator` rules for FilePond instance.
+     * @param nms\filepond\validators\RequiredValidator $validator
+     */
+    private function addRequiredValidator($validator)
     {
         if (is_null($validator) || !$validator->enableClientValidation) {
             return;
         }
 
-        $session = new Session(['validator' => $validator]);
-        $session->saveParams();
+        if (!isset($this->filePond['required'])) {
+            $this->filePond['required'] = true;
+        }
+    }
+
+    /**
+     * Adds `FileValidator` rules for FilePond instance.
+     * @param nms\filepond\validators\FileValidator $validator
+     */
+    private function addFileValidator($validator)
+    {
+        if (is_null($validator) || !$validator->enableClientValidation) {
+            return;
+        }
 
         if (!isset($this->filePond['acceptedFileTypes'])) {
             $mimeTypes = $validator->mimeTypes;
@@ -60,7 +94,7 @@ class ConfigAdapter extends Model
             }
         }
 
-        if (!isset($this->filePond['minFileSize'])) {
+        if (!isset($this->filePond['minFileSize']) && isset($validator->minSize)) {
             $this->filePond['minFileSize'] = $validator->minSize;
         }
 
@@ -76,6 +110,36 @@ class ConfigAdapter extends Model
             }
         }
     }
+
+    /**
+     * Adds `ImageValidator` rules for FilePond instance.
+     * @param nms\filepond\validators\ImageValidator $validator
+     */
+    private function addImageValidator($validator)
+    {
+        if (is_null($validator) || !$validator->enableClientValidation) {
+            return;
+        }
+
+        $this->addFileValidator($validator);
+
+        if (!isset($this->filePond['imageValidateSizeMaxHeight']) && isset($validator->maxHeight)) {
+            $this->filePond['imageValidateSizeMaxHeight'] = $validator->maxHeight;
+        }
+
+        if (!isset($this->filePond['imageValidateSizeMaxWidth']) && isset($validator->maxHeight)) {
+            $this->filePond['imageValidateSizeMaxWidth'] = $validator->maxWidth;
+        }
+
+        if (!isset($this->filePond['imageValidateSizeMinHeight']) && isset($validator->minHeight)) {
+            $this->filePond['imageValidateSizeMinHeight'] = $validator->minHeight;
+        }
+
+        if (!isset($this->filePond['imageValidateSizeMinWidth']) && isset($validator->minWidth)) {
+            $this->filePond['imageValidateSizeMinWidth'] = $validator->minWidth;
+        }
+    }
+
 
     /**
      * Adds server options for FilePond

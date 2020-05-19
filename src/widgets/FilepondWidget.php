@@ -4,7 +4,6 @@ namespace nms\filepond\widgets;
 
 use nms\filepond\assets\YiiFilePondAsset;
 use nms\filepond\helpers\PluginsMapper;
-use nms\filepond\helpers\ValidatorHelper;
 use nms\filepond\models\ConfigAdapter;
 use nms\filepond\models\File;
 use yii\helpers\Html;
@@ -38,15 +37,7 @@ class FilepondWidget extends InputWidget
     {
         $this->field->enableClientValidation = false;
         $this->config = new ConfigAdapter(['filePond' => $this->filePond]);
-
-        $this->config->addValidatorOptions(
-            ValidatorHelper::get(
-                $this->model,
-                $this->attribute,
-                'nms\filepond\validators\FilepondValidator'
-            )
-        );
-
+        $this->config->addValidators($this->model, $this->attribute);
         $this->config->addServerOptions();
         $this->initConnection(isset($this->config->filePond['maxFiles']));
     }
@@ -65,6 +56,7 @@ class FilepondWidget extends InputWidget
         } else {
             $this->connection['standalone'] = true;
             $this->connection['formId'] = $this->id;
+            // TODO: add default fieldName for standalone form
         }
     }
 

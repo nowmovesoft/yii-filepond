@@ -61,9 +61,18 @@ class File extends Model
      */
     private function validateFile()
     {
-        $fileParams = $this->session->loadParams();
+        $params = $this->session->loadParams();
+        $fileParams = null;
 
-        if (null === $fileParams) {
+        foreach (['image', 'file'] as $validator) {
+            if (isset($params[$validator])) {
+                $fileParams = $params[$validator];
+                $validatorName = $validator;
+                break;
+            }
+        }
+
+        if (is_null($fileParams)) {
             return true;
         } elseif (false === $fileParams) {
             return false;
@@ -76,7 +85,7 @@ class File extends Model
         // Files are uploaded only this way: 1 file by 1 request.
         $fileParams['maxFiles'] = 1;
         $model = new DynamicModel(['file' => $this->file]);
-        $model->addRule(['file'], 'file', $fileParams)->validate();
+        $model->addRule(['file'], $validatorName, $fileParams)->validate();
 
         return !$model->hasErrors();
     }
