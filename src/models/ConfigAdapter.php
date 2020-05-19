@@ -94,7 +94,7 @@ class ConfigAdapter extends Model
             }
         }
 
-        if (!isset($this->filePond['minFileSize'])) {
+        if (!isset($this->filePond['minFileSize']) && isset($validator->minSize)) {
             $this->filePond['minFileSize'] = $validator->minSize;
         }
 
