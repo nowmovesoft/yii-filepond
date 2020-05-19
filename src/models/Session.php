@@ -24,9 +24,9 @@ class Session extends Model
     public $id;
 
     /**
-     * @var yii\validators\Validator
+     * @var yii\validators\Validator[]
      */
-    public $validator; // TODO: change it to save multiple validators
+    public $validators;
 
     /**
      * {@inheritdoc}
@@ -53,32 +53,58 @@ class Session extends Model
     }
 
     /**
-     * Saves validator params for current upload.
+     * Gets prefix for session key
+     * @return string
+     */
+    public function getPrefix()
+    {
+        return "filepond.{$this->id}";
+    }
+
+    /**
+     * Saves validators params for current upload.
      * @return boolean
      * @throws Exception If impossible to create sessions directory.
      */
     public function saveParams()
     {
-        if (is_null($this->validator)) {
+        if (is_null($this->validators)) {
             return false;
         }
 
-        Yii::$app->session["filepond.{$this->id}.validator"] = Json::encode($this->validator);
+        $validatorsNames = [];
+
+        foreach ($this->validators as $name => $validator) {
+            if (is_null($validator)) {
+                continue;
+            }
+
+            $validatorsNames[] = $name;
+            Yii::$app->session["{$this->prefix}.validators.{$name}"] = Json::encode($validator);
+        }
+
+        Yii::$app->session["{$this->prefix}.validators.names"] = $validatorsNames;
 
         return true;
     }
 
     /**
      * Loads validator params for current upload
-     * @return array|null|false Parent validator configuration
+     * @return array Parent validator configuration
      */
     public function loadParams()
     {
-        if (is_null(Yii::$app->session["filepond.{$this->id}.validator"])) {
-            return null;
+        if (empty(Yii::$app->session["{$this->prefix}.validators.names"])) {
+            return [];
         }
 
-        return Json::decode(Yii::$app->session["filepond.{$this->id}.validator"]);
+        $params = [];
+
+        foreach (Yii::$app->session["{$this->prefix}.validators.names"] as $name) {
+            $params[$name] = Json::decode(Yii::$app->session["{$this->prefix}.validators.{$name}"]);
+        }
+
+        return $params;
     }
 
     /**
@@ -86,11 +112,11 @@ class Session extends Model
      */
     public function inc()
     {
-        if (!isset(Yii::$app->session["filepond.{$this->id}.filesNumber"])) {
-            Yii::$app->session["filepond.{$this->id}.filesNumber"] = 0;
+        if (!isset(Yii::$app->session["{$this->prefix}.filesNumber"])) {
+            Yii::$app->session["{$this->prefix}.filesNumber"] = 0;
         }
 
-        Yii::$app->session["filepond.{$this->id}.filesNumber"] += 1;
+        Yii::$app->session["{$this->prefix}.filesNumber"] += 1;
     }
 
     /**
@@ -98,11 +124,11 @@ class Session extends Model
      */
     public function dec()
     {
-        if (empty(Yii::$app->session["filepond.{$this->id}.filesNumber"])) {
+        if (empty(Yii::$app->session["{$this->prefix}.filesNumber"])) {
             throw new ErrorException("Impossible to decrease uploaded files number.", 3001);
         }
 
-        Yii::$app->session["filepond.{$this->id}.filesNumber"] -= 1;
+        Yii::$app->session["{$this->prefix}.filesNumber"] -= 1;
     }
 
     /**
@@ -111,10 +137,10 @@ class Session extends Model
      */
     public function getFilesNumber()
     {
-        if (is_null(Yii::$app->session["filepond.{$this->id}.filesNumber"])) {
+        if (is_null(Yii::$app->session["{$this->prefix}.filesNumber"])) {
             return 0;
         }
 
-        return Yii::$app->session["filepond.{$this->id}.filesNumber"];
+        return Yii::$app->session["{$this->prefix}.filesNumber"];
     }
 }

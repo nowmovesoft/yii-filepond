@@ -41,9 +41,33 @@ class ConfigAdapter extends Model
      */
     public function addValidators($model, $attribute)
     {
-        $this->addFileValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'));
-        $this->addRequiredValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\RequiredValidator'));
-        $this->addImageValidator(ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\ImageValidator'));
+        $validators = [
+            'required' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\RequiredValidator'),
+            'file' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'),
+            'image' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\ImageValidator'),
+        ];
+
+        $session = new Session(['validators' => $validators]);
+        $session->saveParams();
+
+        $this->addRequiredValidator($validators['required']);
+        $this->addFileValidator($validators['file']);
+        $this->addImageValidator($validators['image']);
+    }
+
+    /**
+     * Adds `RequiredValidator` rules for FilePond instance.
+     * @param nms\filepond\validators\RequiredValidator $validator
+     */
+    private function addRequiredValidator($validator)
+    {
+        if (is_null($validator) || !$validator->enableClientValidation) {
+            return;
+        }
+
+        if (!isset($this->filePond['required'])) {
+            $this->filePond['required'] = true;
+        }
     }
 
     /**
@@ -55,9 +79,6 @@ class ConfigAdapter extends Model
         if (is_null($validator) || !$validator->enableClientValidation) {
             return;
         }
-
-        $session = new Session(['validator' => $validator]);
-        $session->saveParams();
 
         if (!isset($this->filePond['acceptedFileTypes'])) {
             $mimeTypes = $validator->mimeTypes;
@@ -88,19 +109,6 @@ class ConfigAdapter extends Model
                 $this->filePond['maxFiles'] = $validator->maxFiles;
             }
         }
-    }
-
-    /**
-     * Adds `RequiredValidator` rules for FilePond instance.
-     * @param nms\filepond\validators\RequiredValidator $validator
-     */
-    private function addRequiredValidator($validator)
-    {
-        if (is_null($validator) || !$validator->enableClientValidation) {
-            return;
-        }
-
-        // TODO: implement
     }
 
     /**
