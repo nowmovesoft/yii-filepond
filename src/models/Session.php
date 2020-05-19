@@ -45,11 +45,8 @@ class Session extends Model
             return;
         }
 
-        if (null !== Yii::$app->request->csrfTokenFromHeader) {
-            $this->id = substr(md5(Yii::$app->request->csrfTokenFromHeader), 0, self::SESSION_ID_LENGTH);
-        } else {
-            $this->id = substr(md5(Yii::$app->request->csrfToken), 0, self::SESSION_ID_LENGTH);
-        }
+        $token = Yii::$app->request->csrfTokenFromHeader ?? Yii::$app->request->csrfToken;
+        $this->id = substr(md5($token), 0, self::SESSION_ID_LENGTH);
     }
 
     /**
