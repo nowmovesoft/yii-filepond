@@ -112,11 +112,11 @@ class Session extends Model
     {
         $session = Yii::$app->session[$this->prefix];
 
-        if (!isset($session['filesNumber'])) {
-            $session['filesNumber'] = 0;
+        if (!isset($session['count'])) {
+            $session['count'] = 0;
         }
 
-        $session['filesNumber'] += 1;
+        $session['count'] += 1;
         Yii::$app->session[$this->prefix] = $session;
     }
 
@@ -127,11 +127,11 @@ class Session extends Model
     {
         $session = Yii::$app->session[$this->prefix];
 
-        if (empty($session['filesNumber'])) {
+        if (empty($session['count'])) {
             throw new ErrorException("Impossible to decrease uploaded files number.", 3001);
         }
 
-        $session['filesNumber'] -= 1;
+        $session['count'] -= 1;
         Yii::$app->session[$this->prefix] = $session;
     }
 
@@ -139,15 +139,15 @@ class Session extends Model
      * Gets number of uploaded files
      * @return integer
      */
-    public function getFilesNumber()
+    public function count()
     {
         $session = Yii::$app->session[$this->prefix];
 
-        if (is_null($session['filesNumber'])) {
+        if (!isset($session['count'])) {
             return 0;
         }
 
-        return $session['filesNumber'];
+        return $session['count'];
     }
 
     /**

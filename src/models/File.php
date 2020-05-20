@@ -78,7 +78,7 @@ class File extends Model
             return false;
         }
 
-        if ($this->session->filesNumber >= $fileParams['maxFiles']) {
+        if ($this->session->count() >= $fileParams['maxFiles']) {
             return false;
         }
 
