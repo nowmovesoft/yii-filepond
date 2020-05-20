@@ -109,6 +109,7 @@ class File extends Model
         $status = $this->file->saveAs(self::TEMPORARY_STORAGE . '/' . $this->id);
 
         if ($status) {
+            $this->session->saveFileInfo($this->file);
             $this->session->inc();
         }
 
@@ -130,6 +131,7 @@ class File extends Model
         $status = FileHelper::unlink($this->path);
 
         if ($status) {
+            $this->session->removeFileInfo($this->id);
             $this->session->dec();
         }
 

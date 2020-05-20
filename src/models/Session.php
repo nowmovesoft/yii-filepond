@@ -69,18 +69,17 @@ class Session extends Model
             return false;
         }
 
-        $validatorsNames = [];
+        $session = Yii::$app->session[$this->prefix];
 
         foreach ($this->validators as $name => $validator) {
             if (is_null($validator)) {
                 continue;
             }
 
-            $validatorsNames[] = $name;
-            Yii::$app->session["{$this->prefix}.validators.{$name}"] = Json::encode($validator);
+            $session['validators'][$name] = Json::encode($validator);
         }
 
-        Yii::$app->session["{$this->prefix}.validators.names"] = $validatorsNames;
+        Yii::$app->session[$this->prefix] = $session;
 
         return true;
     }
@@ -91,14 +90,16 @@ class Session extends Model
      */
     public function loadParams()
     {
-        if (empty(Yii::$app->session["{$this->prefix}.validators.names"])) {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (empty($session['validators'])) {
             return [];
         }
 
         $params = [];
 
-        foreach (Yii::$app->session["{$this->prefix}.validators.names"] as $name) {
-            $params[$name] = Json::decode(Yii::$app->session["{$this->prefix}.validators.{$name}"]);
+        foreach ($session['validators'] as $name => $validator) {
+            $params[$name] = Json::decode($validator);
         }
 
         return $params;
@@ -109,11 +110,14 @@ class Session extends Model
      */
     public function inc()
     {
-        if (!isset(Yii::$app->session["{$this->prefix}.filesNumber"])) {
-            Yii::$app->session["{$this->prefix}.filesNumber"] = 0;
+        $session = Yii::$app->session[$this->prefix];
+
+        if (!isset($session['filesNumber'])) {
+            $session['filesNumber'] = 0;
         }
 
-        Yii::$app->session["{$this->prefix}.filesNumber"] += 1;
+        $session['filesNumber'] += 1;
+        Yii::$app->session[$this->prefix] = $session;
     }
 
     /**
@@ -121,11 +125,14 @@ class Session extends Model
      */
     public function dec()
     {
-        if (empty(Yii::$app->session["{$this->prefix}.filesNumber"])) {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (empty($session['filesNumber'])) {
             throw new ErrorException("Impossible to decrease uploaded files number.", 3001);
         }
 
-        Yii::$app->session["{$this->prefix}.filesNumber"] -= 1;
+        $session['filesNumber'] -= 1;
+        Yii::$app->session[$this->prefix] = $session;
     }
 
     /**
@@ -134,10 +141,28 @@ class Session extends Model
      */
     public function getFilesNumber()
     {
-        if (is_null(Yii::$app->session["{$this->prefix}.filesNumber"])) {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (is_null($session['filesNumber'])) {
             return 0;
         }
 
-        return Yii::$app->session["{$this->prefix}.filesNumber"];
+        return $session['filesNumber'];
+    }
+
+    /**
+     *
+     */
+    public function saveFileInfo($file)
+    {
+
+    }
+
+    /**
+     *
+     */
+    public function removeFileInfo($id)
+    {
+
     }
 }
