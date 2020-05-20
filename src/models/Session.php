@@ -151,18 +151,44 @@ class Session extends Model
     }
 
     /**
-     *
+     * Adds file information in session.
+     * @param string $id file identifier
+     * @param \yii\web\UploadedFile $file file object
      */
-    public function saveFileInfo($file)
+    public function addFile($id, $file)
     {
+        $session = Yii::$app->session[$this->prefix];
 
+        $fields = [
+            'baseName',
+            'extension',
+            'name',
+            'size',
+            'type',
+        ];
+
+        $fileInfo = [];
+
+        foreach ($fields as $field) {
+            $fileInfo[$field] = $file->$field;
+        }
+
+        $session['files'][$id] = $fileInfo;
+        Yii::$app->session[$this->prefix] = $session;
     }
 
     /**
-     *
+     * Removes file information from session.
+     * @param string $id file identifier
      */
-    public function removeFileInfo($id)
+    public function removeFile($id)
     {
+        $session = Yii::$app->session[$this->prefix];
 
+        if (isset($session['files'][$id])) {
+            unset($session['files'][$id]);
+        }
+
+        Yii::$app->session[$this->prefix] = $session;
     }
 }
