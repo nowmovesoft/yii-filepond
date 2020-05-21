@@ -200,4 +200,12 @@ class Session extends Model
 
         Yii::$app->session[$this->prefix] = $session;
     }
+
+    /**
+     * Flushes a session.
+     */
+    public function flush()
+    {
+        Yii::$app->session->remove($this->prefix);
+    }
 }

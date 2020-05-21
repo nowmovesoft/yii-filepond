@@ -185,6 +185,15 @@ class File extends Model
     }
 
     /**
+     * Indicates that files handling is complete.
+     */
+    public function complete()
+    {
+        $this->initSession();
+        $this->session->flush();
+    }
+
+    /**
      * Creates file model by uploaded file identifier
      * @param string $id Identifier
      */
