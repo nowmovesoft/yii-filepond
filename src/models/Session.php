@@ -19,7 +19,7 @@ class Session extends Model
     const SESSION_ID_LENGTH = 8;
 
     /**
-     * @var string Session file identifier
+     * @var string Session identifier
      */
     public $id;
 
@@ -41,12 +41,9 @@ class Session extends Model
      */
     private function initId()
     {
-        if (isset($this->id)) {
-            return;
-        }
-
-        $token = Yii::$app->request->csrfTokenFromHeader ?? Yii::$app->request->csrfToken;
-        $this->id = substr(md5($token), 0, self::SESSION_ID_LENGTH);
+        $this->id = Yii::$app->request->headers->get('X-Session-Id')
+            ?? Yii::$app->request->post('session-id')
+            ?? Yii::$app->security->generateRandomString(self::SESSION_ID_LENGTH);
     }
 
     /**
@@ -69,18 +66,17 @@ class Session extends Model
             return false;
         }
 
-        $validatorsNames = [];
+        $session = Yii::$app->session[$this->prefix];
 
         foreach ($this->validators as $name => $validator) {
             if (is_null($validator)) {
                 continue;
             }
 
-            $validatorsNames[] = $name;
-            Yii::$app->session["{$this->prefix}.validators.{$name}"] = Json::encode($validator);
+            $session['validators'][$name] = Json::encode($validator);
         }
 
-        Yii::$app->session["{$this->prefix}.validators.names"] = $validatorsNames;
+        Yii::$app->session[$this->prefix] = $session;
 
         return true;
     }
@@ -91,14 +87,16 @@ class Session extends Model
      */
     public function loadParams()
     {
-        if (empty(Yii::$app->session["{$this->prefix}.validators.names"])) {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (empty($session['validators'])) {
             return [];
         }
 
         $params = [];
 
-        foreach (Yii::$app->session["{$this->prefix}.validators.names"] as $name) {
-            $params[$name] = Json::decode(Yii::$app->session["{$this->prefix}.validators.{$name}"]);
+        foreach ($session['validators'] as $name => $validator) {
+            $params[$name] = Json::decode($validator);
         }
 
         return $params;
@@ -109,11 +107,14 @@ class Session extends Model
      */
     public function inc()
     {
-        if (!isset(Yii::$app->session["{$this->prefix}.filesNumber"])) {
-            Yii::$app->session["{$this->prefix}.filesNumber"] = 0;
+        $session = Yii::$app->session[$this->prefix];
+
+        if (!isset($session['count'])) {
+            $session['count'] = 0;
         }
 
-        Yii::$app->session["{$this->prefix}.filesNumber"] += 1;
+        $session['count'] += 1;
+        Yii::$app->session[$this->prefix] = $session;
     }
 
     /**
@@ -121,23 +122,90 @@ class Session extends Model
      */
     public function dec()
     {
-        if (empty(Yii::$app->session["{$this->prefix}.filesNumber"])) {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (empty($session['count'])) {
             throw new ErrorException("Impossible to decrease uploaded files number.", 3001);
         }
 
-        Yii::$app->session["{$this->prefix}.filesNumber"] -= 1;
+        $session['count'] -= 1;
+        Yii::$app->session[$this->prefix] = $session;
     }
 
     /**
      * Gets number of uploaded files
      * @return integer
      */
-    public function getFilesNumber()
+    public function count()
     {
-        if (is_null(Yii::$app->session["{$this->prefix}.filesNumber"])) {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (!isset($session['count'])) {
             return 0;
         }
 
-        return Yii::$app->session["{$this->prefix}.filesNumber"];
+        return $session['count'];
+    }
+
+    /**
+     * Gets file information
+     * @param string $id file identifier
+     * @return array
+     */
+    public function getFile($id)
+    {
+        $session = Yii::$app->session[$this->prefix];
+
+        return $session['files'][$id] ?? null;
+    }
+
+    /**
+     * Adds file information in session.
+     * @param string $id file identifier
+     * @param \yii\web\UploadedFile $file file object
+     */
+    public function addFile($id, $file)
+    {
+        $session = Yii::$app->session[$this->prefix];
+
+        $fields = [
+            'baseName',
+            'extension',
+            'name',
+            'size',
+            'type',
+        ];
+
+        $fileInfo = [];
+
+        foreach ($fields as $field) {
+            $fileInfo[$field] = $file->$field;
+        }
+
+        $session['files'][$id] = $fileInfo;
+        Yii::$app->session[$this->prefix] = $session;
+    }
+
+    /**
+     * Removes file information from session.
+     * @param string $id file identifier
+     */
+    public function removeFile($id)
+    {
+        $session = Yii::$app->session[$this->prefix];
+
+        if (isset($session['files'][$id])) {
+            unset($session['files'][$id]);
+        }
+
+        Yii::$app->session[$this->prefix] = $session;
+    }
+
+    /**
+     * Flushes a session.
+     */
+    public function flush()
+    {
+        Yii::$app->session->remove($this->prefix);
     }
 }

@@ -78,7 +78,7 @@ class File extends Model
             return false;
         }
 
-        if ($this->session->filesNumber >= $fileParams['maxFiles']) {
+        if ($this->session->count() >= $fileParams['maxFiles']) {
             return false;
         }
 
@@ -109,6 +109,7 @@ class File extends Model
         $status = $this->file->saveAs(self::TEMPORARY_STORAGE . '/' . $this->id);
 
         if ($status) {
+            $this->session->addFile($this->id, $this->file);
             $this->session->inc();
         }
 
@@ -130,6 +131,7 @@ class File extends Model
         $status = FileHelper::unlink($this->path);
 
         if ($status) {
+            $this->session->removeFile($this->id);
             $this->session->dec();
         }
 
@@ -158,6 +160,17 @@ class File extends Model
     }
 
     /**
+     * Gets file information.
+     * @return array
+     */
+    public function getInfo()
+    {
+        $this->initSession();
+
+        return $this->session->getFile($this->id);
+    }
+
+    /**
      * Saves file by specific name.
      * @param string $file the file path or a path alias used to save the uploaded file.
      * @param boolean $deleteTempFile whether to delete the temporary file after saving.
@@ -169,6 +182,15 @@ class File extends Model
         FileHelper::createDirectory(dirname($targetFile));
 
         return $deleteTempFile ? rename($this->path, $targetFile) : copy($this->path, $targetFile);
+    }
+
+    /**
+     * Indicates that files handling is complete.
+     */
+    public function complete()
+    {
+        $this->initSession();
+        $this->session->flush();
     }
 
     /**
