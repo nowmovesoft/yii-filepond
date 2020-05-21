@@ -3,7 +3,6 @@
 namespace nms\filepond\models;
 
 use nms\filepond\helpers\ValidatorHelper;
-use nms\filepond\models\Session;
 use nms\filepond\Module;
 use yii\base\Model;
 use yii\helpers\FileHelper;
@@ -35,6 +34,11 @@ class ConfigAdapter extends Model
     public $filePond;
 
     /**
+     * @var Session Saved state of upload field
+     */
+    private $session;
+
+    /**
      * Adds validators options to FilePond instance.
      * @param Model $model
      * @param string $attribute
@@ -47,8 +51,8 @@ class ConfigAdapter extends Model
             'image' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\ImageValidator'),
         ];
 
-        $session = new Session(['validators' => $validators]);
-        $session->saveParams();
+        $this->session = new Session(['validators' => $validators]);
+        $this->session->saveParams();
 
         $this->addRequiredValidator($validators['required']);
         $this->addFileValidator($validators['file']);
@@ -155,6 +159,7 @@ class ConfigAdapter extends Model
                 'url' => urldecode(Url::to(['/' . Module::getInstance()->uniqueId . '/filepond/' . $endpoint])),
                 'headers' => [
                     'X-CSRF-Token' => new JsExpression('yii.getCsrfToken()'),
+                    'X-Session-Id' => $this->session->id,
                 ],
                 'onerror' => new JsExpression(
                     '(response) => {
@@ -180,6 +185,15 @@ class ConfigAdapter extends Model
 
             $this->filePond['server'][$endpoint] = $options;
         }
+    }
+
+    /**
+     * Gets session identifier.
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return $this->session->id;
     }
 
     /**

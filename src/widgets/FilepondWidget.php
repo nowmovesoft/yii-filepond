@@ -53,6 +53,7 @@ class FilepondWidget extends InputWidget
         if (isset($this->model, $this->attribute, $this->field)) {
             $this->connection['formId'] = $this->field->form->id;
             $this->connection['fieldName'] = Html::getInputName($this->model, $this->attribute . ($multiple ? '[]' : ''));
+            $this->connection['sessionId'] = $this->config->getSessionId();
         } else {
             $this->connection['standalone'] = true;
             $this->connection['formId'] = $this->id;

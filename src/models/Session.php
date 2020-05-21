@@ -19,7 +19,7 @@ class Session extends Model
     const SESSION_ID_LENGTH = 8;
 
     /**
-     * @var string Session file identifier
+     * @var string Session identifier
      */
     public $id;
 
@@ -41,12 +41,9 @@ class Session extends Model
      */
     private function initId()
     {
-        if (isset($this->id)) {
-            return;
-        }
-
-        $token = Yii::$app->request->csrfTokenFromHeader ?? Yii::$app->request->csrfToken;
-        $this->id = substr(md5($token), 0, self::SESSION_ID_LENGTH);
+        $this->id = Yii::$app->request->headers->get('X-Session-Id')
+            ?? Yii::$app->request->post('session-id')
+            ?? Yii::$app->security->generateRandomString(self::SESSION_ID_LENGTH);
     }
 
     /**
@@ -148,6 +145,18 @@ class Session extends Model
         }
 
         return $session['count'];
+    }
+
+    /**
+     * Gets file information
+     * @param string $id file identifier
+     * @return array
+     */
+    public function getFile($id)
+    {
+        $session = Yii::$app->session[$this->prefix];
+
+        return $session['files'][$id] ?? null;
     }
 
     /**

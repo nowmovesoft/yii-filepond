@@ -160,6 +160,17 @@ class File extends Model
     }
 
     /**
+     * Gets file information.
+     * @return array
+     */
+    public function getInfo()
+    {
+        $this->initSession();
+
+        return $this->session->getFile($this->id);
+    }
+
+    /**
      * Saves file by specific name.
      * @param string $file the file path or a path alias used to save the uploaded file.
      * @param boolean $deleteTempFile whether to delete the temporary file after saving.
