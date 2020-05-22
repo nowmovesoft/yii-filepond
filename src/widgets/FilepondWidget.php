@@ -50,10 +50,10 @@ class FilepondWidget extends InputWidget
     {
         $this->connection['model'] = new File();
 
-        if (isset($this->model, $this->attribute, $this->field)) {
+        if (isset($this->field)) {
             $this->connection['formId'] = $this->field->form->id;
             $this->connection['fieldName'] = Html::getInputName($this->model, $this->attribute . ($multiple ? '[]' : ''));
-            $this->connection['sessionId'] = $this->config->getSessionId();
+            $this->model[$this->attribute] = $this->config->getSessionId();
         } else {
             $this->connection['standalone'] = true;
             $this->connection['formId'] = $this->id;
@@ -76,13 +76,7 @@ class FilepondWidget extends InputWidget
     public function run()
     {
         $this->registerAssets();
-        $this->view->registerJs("
-            FilePond.create(document.querySelector('input[type=\"file\"]'), {$this->config->make()});
-            $('#{$this->connection['formId']}').submit((event) => {
-                $('.filepond--data [name=\"File[file]\"]').attr('name', '{$this->connection['fieldName']}');
-                return true;
-            });
-        ", $this->view::POS_END, 'filepond-widget');
+        $this->view->registerJs("FilePond.create(document.querySelector('input[type=\"file\"]'), {$this->config->make()});", $this->view::POS_END, 'filepond-widget');
 
         return $this->render('filepond', [
             'connection' => $this->connection,

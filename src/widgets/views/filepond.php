@@ -11,5 +11,5 @@ if ($connection['standalone']) {
     ActiveForm::end();
 } else {
     echo Html::activeFileInput($connection['model'], 'file');
-    echo Html::hiddenInput('session-id', $connection['sessionId']);
+    echo $field->hiddenInput()->label(false);
 }

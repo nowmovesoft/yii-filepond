@@ -144,7 +144,6 @@ class ConfigAdapter extends Model
         }
     }
 
-
     /**
      * Adds server options for FilePond
      */
