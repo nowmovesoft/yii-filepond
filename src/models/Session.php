@@ -41,8 +41,11 @@ class Session extends Model
      */
     private function initId()
     {
+        if (isset($this->id)) {
+            return;
+        }
+
         $this->id = Yii::$app->request->headers->get('X-Session-Id')
-            ?? Yii::$app->request->post('session-id')
             ?? Yii::$app->security->generateRandomString(self::SESSION_ID_LENGTH);
     }
 
@@ -148,15 +151,14 @@ class Session extends Model
     }
 
     /**
-     * Gets file information
-     * @param string $id file identifier
-     * @return array
+     * Gets all files in current upload session
+     * @return array|null
      */
-    public function getFile($id)
+    public function getFiles()
     {
         $session = Yii::$app->session[$this->prefix];
 
-        return $session['files'][$id] ?? null;
+        return $session['files'];
     }
 
     /**
