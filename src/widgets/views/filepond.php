@@ -10,6 +10,6 @@ if ($connection['standalone']) {
     echo $form->field($connection['model'], 'file')->fileInput()->label(false);
     ActiveForm::end();
 } else {
-    echo Html::activeFileInput($connection['model'], 'file');
-    echo Html::hiddenInput('session-id', $connection['sessionId']);
+    echo Html::fileInput(null, null, ['id' => $connection['fieldId']]);
+    echo $field->hiddenInput()->label(false);
 }

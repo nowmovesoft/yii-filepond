@@ -32,6 +32,31 @@ class File extends Model
     public $file;
 
     /**
+     * @var string base file name without extension
+     */
+    public $baseName;
+
+    /**
+     * @var string file extension without dot
+     */
+    public $extension;
+
+    /**
+     * @var string original file name
+     */
+    public $name;
+
+    /**
+     * @var integer file size in bytes
+     */
+    public $size;
+
+    /**
+     * @var string file MIME-type
+     */
+    public $type;
+
+    /**
      * @var Session Session object
      */
     private $session;
@@ -52,11 +77,13 @@ class File extends Model
         return [
             [['id'], 'string'],
             [['file'], 'safe'],
+            [['baseName', 'extension', 'name', 'size', 'type'], 'safe'],
         ];
     }
 
     /**
      * Validates uploaded file dynamically.
+     * TODO: move this method to model rules
      * @return boolean
      */
     private function validateFile()
@@ -160,17 +187,6 @@ class File extends Model
     }
 
     /**
-     * Gets file information.
-     * @return array
-     */
-    public function getInfo()
-    {
-        $this->initSession();
-
-        return $this->session->getFile($this->id);
-    }
-
-    /**
      * Saves file by specific name.
      * @param string $file the file path or a path alias used to save the uploaded file.
      * @param boolean $deleteTempFile whether to delete the temporary file after saving.
@@ -185,20 +201,26 @@ class File extends Model
     }
 
     /**
-     * Indicates that files handling is complete.
+     * Gets all files by session identifier.
+     * @param string $sessionId session identifier
+     * @return self[]
      */
-    public function complete()
+    public static function getAll($sessionId)
     {
-        $this->initSession();
-        $this->session->flush();
-    }
+        $session = new Session(['id' => $sessionId]);
+        $filesInfo = $session->getFiles();
+        $session->flush();
 
-    /**
-     * Creates file model by uploaded file identifier
-     * @param string $id Identifier
-     */
-    public static function getById($id)
-    {
-        return new self(['id' => $id]);
+        if (empty($filesInfo)) {
+            return [];
+        }
+
+        $files = [];
+
+        foreach ($filesInfo as $fileId => $info) {
+            $files[] = new self(array_merge(['id' => $fileId], $info));
+        }
+
+        return $files;
     }
 }

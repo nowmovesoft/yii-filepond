@@ -38,8 +38,8 @@ class FilepondWidget extends InputWidget
         $this->field->enableClientValidation = false;
         $this->config = new ConfigAdapter(['filePond' => $this->filePond]);
         $this->config->addValidators($this->model, $this->attribute);
-        $this->config->addServerOptions();
         $this->initConnection(isset($this->config->filePond['maxFiles']));
+        $this->config->addServerOptions($this->connection['fieldId']);
     }
 
     /**
@@ -50,14 +50,13 @@ class FilepondWidget extends InputWidget
     {
         $this->connection['model'] = new File();
 
-        if (isset($this->model, $this->attribute, $this->field)) {
+        if (isset($this->field)) {
             $this->connection['formId'] = $this->field->form->id;
-            $this->connection['fieldName'] = Html::getInputName($this->model, $this->attribute . ($multiple ? '[]' : ''));
-            $this->connection['sessionId'] = $this->config->getSessionId();
+            $this->connection['fieldId'] = "{$this->id}-" . Html::getInputId($this->connection['model'], 'file');
+            $this->model[$this->attribute] = $this->config->getSessionId();
         } else {
             $this->connection['standalone'] = true;
             $this->connection['formId'] = $this->id;
-            // TODO: add default fieldName for standalone form
         }
     }
 
@@ -77,12 +76,12 @@ class FilepondWidget extends InputWidget
     {
         $this->registerAssets();
         $this->view->registerJs("
-            FilePond.create(document.querySelector('input[type=\"file\"]'), {$this->config->make()});
-            $('#{$this->connection['formId']}').submit((event) => {
-                $('.filepond--data [name=\"File[file]\"]').attr('name', '{$this->connection['fieldName']}');
-                return true;
-            });
-        ", $this->view::POS_END, 'filepond-widget');
+            if (undefined === pondInstances) {
+                var pondInstances = [];
+            }
+
+            pondInstances.push(FilePond.create(document.querySelector('#{$this->connection['fieldId']}'), {$this->config->make()}));
+        ", $this->view::POS_END);
 
         return $this->render('filepond', [
             'connection' => $this->connection,
