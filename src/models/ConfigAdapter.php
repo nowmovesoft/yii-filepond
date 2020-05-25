@@ -39,6 +39,24 @@ class ConfigAdapter extends Model
     private $session;
 
     /**
+     * {@inheritdoc}
+     */
+    public function init()
+    {
+        $this->addName();
+    }
+
+    /**
+     * Adds `name` option for FilePond.
+     */
+    public function addName()
+    {
+        if (!isset($this->filePond['name'])) {
+            $this->filePond['name'] = 'File[file]';
+        }
+    }
+
+    /**
      * Adds validators options to FilePond instance.
      * @param Model $model
      * @param string $attribute
@@ -146,8 +164,9 @@ class ConfigAdapter extends Model
 
     /**
      * Adds server options for FilePond
+     * @param string $fieldId FilePond field identifier
      */
-    public function addServerOptions()
+    public function addServerOptions($fieldId)
     {
         foreach (self::FILEPOND_ENDPOINTS as $endpoint) {
             if (isset($this->filePond['server'][$endpoint])) {
@@ -161,22 +180,22 @@ class ConfigAdapter extends Model
                     'X-Session-Id' => $this->session->id,
                 ],
                 'onerror' => new JsExpression(
-                    '(response) => {
+                    "(response) => {
                         response = JSON.parse(response);
-                        $("#file-file").siblings(".help-block").text(response.message);
+                        $('#{$fieldId}').siblings('.help-block').text(response.message);
                         return response.message;
-                    }'
+                    }"
                 ),
             ];
 
             switch ($endpoint) {
                 case 'process':
                     $options['onload'] = new JsExpression(
-                        '(response) => {
+                        "(response) => {
                             response = JSON.parse(response);
-                            $("#file-file").siblings(".help-block").text("");
+                            $('#{$fieldId}').siblings('.help-block').text('');
                             return response.key;
-                        }'
+                        }"
                     );
 
                     break;
