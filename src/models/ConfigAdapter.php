@@ -8,7 +8,6 @@ use yii\base\Model;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\helpers\Url;
-use yii\web\JsExpression;
 
 /**
  * Adopts widget configuration to FilePond configuration.

@@ -39,24 +39,21 @@ class FilepondWidget extends InputWidget
         $this->field->enableClientValidation = false;
         $this->config = new ConfigAdapter(['filePond' => $this->filePond]);
         $this->config->addValidators($this->model, $this->attribute);
-        $this->initConnection(isset($this->config->filePond['maxFiles']));
+        $this->initConnection();
     }
 
     /**
      * Initialize connection type and data for each of these types.
-     * @param boolean $multiple Is it a multiple files uploading?
      */
-    private function initConnection($multiple)
+    private function initConnection()
     {
+        $this->connection['frontend']['endpoints'] = $this->config->getEndpoints();
         $this->connection['backend']['model'] = new File();
 
         if (isset($this->field)) {
-            $this->connection['backend']['formId'] = $this->field->form->id;
-            $this->connection['backend']['fieldId'] = "{$this->id}-" . Html::getInputId($this->connection['backend']['model'], 'file');
-            $this->model[$this->attribute] = $this->config->getSessionId();
-            $this->connection['frontend']['fieldId'] = $this->connection['backend']['fieldId'];
-            $this->connection['frontend']['endpoints'] = $this->config->getEndpoints();
+            $this->connection['common']['fieldId'] = "{$this->id}-" . Html::getInputId($this->connection['backend']['model'], 'file');
             $this->connection['frontend']['sessionId'] = $this->config->getSessionId();
+            $this->model[$this->attribute] = $this->config->getSessionId();
         } else {
             $this->connection['backend']['standalone'] = true;
             $this->connection['backend']['formId'] = $this->id;
@@ -72,7 +69,7 @@ class FilepondWidget extends InputWidget
         PluginsMapper::register($this->config->filePond, $this->view);
 
         $options = $this->config->make();
-        $connection = Json::encode($this->connection['frontend']);
+        $connection = Json::encode(array_merge($this->connection['common'], $this->connection['frontend']));
 
         $this->view->registerJs("YiiFilePond.register({$options}, {$connection});", $this->view::POS_END);
     }
@@ -85,7 +82,7 @@ class FilepondWidget extends InputWidget
         $this->registerAssets();
 
         return $this->render('filepond', [
-            'connection' => $this->connection['backend'],
+            'connection' => array_merge($this->connection['common'], $this->connection['backend']),
             'field' => $this->field,
         ]);
     }
