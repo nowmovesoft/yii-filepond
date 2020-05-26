@@ -13,6 +13,18 @@ class YiiFilePondAsset extends AssetBundle
     /**
      * {@inheritdoc}
      */
+    public $sourcePath = __dir__ . '/sources/yii-filepond';
+
+    /**
+     * {@inheritdoc}
+     */
+    public $js = [
+        'js/yii-filepond.js',
+    ];
+
+    /**
+     * {@inheritdoc}
+     */
     public $depends = [
         'nms\filepond\FilePondAsset',
         'yii\web\YiiAsset',
