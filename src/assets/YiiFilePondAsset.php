@@ -27,5 +27,6 @@ class YiiFilePondAsset extends AssetBundle
      */
     public $depends = [
         'nms\filepond\FilePondAsset',
+        'yii\web\JqueryAsset',
     ];
 }

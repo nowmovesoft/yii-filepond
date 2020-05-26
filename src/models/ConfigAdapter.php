@@ -163,46 +163,18 @@ class ConfigAdapter extends Model
     }
 
     /**
-     * Adds server options for FilePond
-     * @param string $fieldId FilePond field identifier
+     * Gets endpoints URLs.
+     * @return array
      */
-    public function addServerOptions($fieldId)
+    public function getEndpoints()
     {
+        $endpoints = [];
+
         foreach (self::FILEPOND_ENDPOINTS as $endpoint) {
-            if (isset($this->filePond['server'][$endpoint])) {
-                continue;
-            }
-
-            $options = [
-                'url' => urldecode(Url::to(['/' . Module::getInstance()->uniqueId . '/filepond/' . $endpoint])),
-                'headers' => [
-                    'X-CSRF-Token' => new JsExpression('yii.getCsrfToken()'),
-                    'X-Session-Id' => $this->session->id,
-                ],
-                'onerror' => new JsExpression(
-                    "(response) => {
-                        response = JSON.parse(response);
-                        $('#{$fieldId}').siblings('.help-block').text(response.message);
-                        return response.message;
-                    }"
-                ),
-            ];
-
-            switch ($endpoint) {
-                case 'process':
-                    $options['onload'] = new JsExpression(
-                        "(response) => {
-                            response = JSON.parse(response);
-                            $('#{$fieldId}').siblings('.help-block').text('');
-                            return response.key;
-                        }"
-                    );
-
-                    break;
-            }
-
-            $this->filePond['server'][$endpoint] = $options;
+            $endpoints[$endpoint] = urldecode(Url::to(['/' . Module::getInstance()->uniqueId . '/filepond/' . $endpoint]));
         }
+
+        return $endpoints;
     }
 
     /**

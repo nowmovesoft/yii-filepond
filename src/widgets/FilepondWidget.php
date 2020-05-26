@@ -40,7 +40,6 @@ class FilepondWidget extends InputWidget
         $this->config = new ConfigAdapter(['filePond' => $this->filePond]);
         $this->config->addValidators($this->model, $this->attribute);
         $this->initConnection(isset($this->config->filePond['maxFiles']));
-        $this->config->addServerOptions($this->connection['fieldId']);
     }
 
     /**
@@ -49,15 +48,18 @@ class FilepondWidget extends InputWidget
      */
     private function initConnection($multiple)
     {
-        $this->connection['model'] = new File();
+        $this->connection['backend']['model'] = new File();
 
         if (isset($this->field)) {
-            $this->connection['formId'] = $this->field->form->id;
-            $this->connection['fieldId'] = "{$this->id}-" . Html::getInputId($this->connection['model'], 'file');
+            $this->connection['backend']['formId'] = $this->field->form->id;
+            $this->connection['backend']['fieldId'] = "{$this->id}-" . Html::getInputId($this->connection['backend']['model'], 'file');
             $this->model[$this->attribute] = $this->config->getSessionId();
+            $this->connection['frontend']['fieldId'] = $this->connection['backend']['fieldId'];
+            $this->connection['frontend']['endpoints'] = $this->config->getEndpoints();
+            $this->connection['frontend']['sessionId'] = $this->config->getSessionId();
         } else {
-            $this->connection['standalone'] = true;
-            $this->connection['formId'] = $this->id;
+            $this->connection['backend']['standalone'] = true;
+            $this->connection['backend']['formId'] = $this->id;
         }
     }
 
@@ -70,7 +72,7 @@ class FilepondWidget extends InputWidget
         PluginsMapper::register($this->config->filePond, $this->view);
 
         $options = $this->config->make();
-        $connection = Json::encode($this->connection);
+        $connection = Json::encode($this->connection['frontend']);
 
         $this->view->registerJs("YiiFilePond.register({$options}, {$connection});", $this->view::POS_END);
     }
@@ -83,7 +85,7 @@ class FilepondWidget extends InputWidget
         $this->registerAssets();
 
         return $this->render('filepond', [
-            'connection' => $this->connection,
+            'connection' => $this->connection['backend'],
             'field' => $this->field,
         ]);
     }
