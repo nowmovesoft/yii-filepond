@@ -7,6 +7,7 @@ use nms\filepond\helpers\PluginsMapper;
 use nms\filepond\models\ConfigAdapter;
 use nms\filepond\models\File;
 use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\widgets\InputWidget;
 
 /**
@@ -61,12 +62,17 @@ class FilepondWidget extends InputWidget
     }
 
     /**
-     * Registers assets, using by widget
+     * Registers assets, using by widget.
      */
     private function registerAssets()
     {
         YiiFilePondAsset::register($this->view);
         PluginsMapper::register($this->config->filePond, $this->view);
+
+        $options = $this->config->make();
+        $connection = Json::encode($this->connection);
+
+        $this->view->registerJs("YiiFilePond.register({$options}, {$connection});", $this->view::POS_END);
     }
 
     /**
@@ -75,13 +81,6 @@ class FilepondWidget extends InputWidget
     public function run()
     {
         $this->registerAssets();
-        $this->view->registerJs("
-            if (undefined === pondInstances) {
-                var pondInstances = [];
-            }
-
-            pondInstances.push(FilePond.create(document.querySelector('#{$this->connection['fieldId']}'), {$this->config->make()}));
-        ", $this->view::POS_END);
 
         return $this->render('filepond', [
             'connection' => $this->connection,
