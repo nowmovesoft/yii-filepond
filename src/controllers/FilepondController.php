@@ -6,6 +6,7 @@ use nms\filepond\models\File;
 use Yii;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\UploadedFile;
@@ -75,21 +76,21 @@ class FilepondController extends Controller
 
     public function actionLoad()
     {
-        return $this->render('load');
+        throw new NotSupportedException("Load action isn't supported.", 4001);
     }
 
     public function actionRestore()
     {
-        return $this->render('restore');
+        throw new NotSupportedException("Restore action isn't supported.", 4002);
     }
 
     public function actionFetch()
     {
-        return $this->render('fetch');
+        throw new NotSupportedException("Fetch action isn't supported.", 4003);
     }
 
     public function actionPatch()
     {
-        return $this->render('patch');
+        throw new NotSupportedException("Patch action isn't supported.", 4004);
     }
 }
