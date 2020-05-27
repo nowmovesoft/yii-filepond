@@ -36,12 +36,26 @@ class FilepondController extends Controller
     }
 
     /**
+     * Server answers in JSON format for all requests.
+     * {@inheritdoc}
+     */
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        return true;
+    }
+
+    /**
      * Uploads file to temporary storage.
      * @return json
      */
     public function actionProcess()
     {
-        Yii::$app->response->format = Response::FORMAT_JSON;
         $model = new File();
         $model->file = UploadedFile::getInstance($model, 'file');
 
@@ -62,7 +76,6 @@ class FilepondController extends Controller
      */
     public function actionRevert()
     {
-        Yii::$app->response->format = Response::FORMAT_JSON;
         $model = new File(['id' => file_get_contents('php://input')]);
 
         try {
