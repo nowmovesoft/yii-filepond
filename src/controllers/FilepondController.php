@@ -48,7 +48,7 @@ class FilepondController extends Controller
             $model->process();
         } catch (ErrorException | Exception $e) {
             Yii::$app->response->statusCode = 500;
-            Yii::error("Code: {$e->getCode()}.\nMessage: {$e->getMessage()}\nTrace: {$e->getTraceAsString()}", 'app\modules\filepond\controllers\FilepondController::actionProcess');
+            Yii::error("Code: {$e->getCode()}.\nMessage: {$e->getMessage()}\nTrace: {$e->getTraceAsString()}", 'nms\filepond\controllers\FilepondController::actionProcess');
             return ['message' => Yii::t('app', 'Processing error. Please, contact your administrator. Error code: ' . $e->getCode())];
         }
 
@@ -68,7 +68,7 @@ class FilepondController extends Controller
             $model->revert();
         } catch (ErrorException | Exception $e) {
             Yii::$app->response->statusCode = 500;
-            Yii::error("Code: {$e->getCode()}.\nMessage: {$e->getMessage()}.\nTrace: {$e->getTraceAsString()}.", 'app\modules\filepond\controllers\FilepondController::actionRevert');
+            Yii::error("Code: {$e->getCode()}.\nMessage: {$e->getMessage()}.\nTrace: {$e->getTraceAsString()}.", 'nms\filepond\controllers\FilepondController::actionRevert');
             return ['message' => Yii::t('app', 'Reverting error. Please, contact your administrator. Error code: ' . $e->getCode())];
         }
     }

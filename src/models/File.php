@@ -76,18 +76,20 @@ class File extends Model
     {
         return [
             [['id'], 'string'],
-            [['file'], 'safe'],
+            [['file'], 'validateFile'],
             [['baseName', 'extension', 'name', 'size', 'type'], 'safe'],
         ];
     }
 
     /**
      * Validates uploaded file dynamically.
-     * TODO: move this method to model rules
+     * @param string $attribute the attribute currently being validated
+     * @param array $params the additional name-value pairs given in the rule
      * @return boolean
      */
-    private function validateFile()
+    public function validateFile($attribute, $params)
     {
+        $this->initSession();
         $params = $this->session->loadParams();
         $fileParams = null;
 
@@ -100,13 +102,22 @@ class File extends Model
         }
 
         if (is_null($fileParams)) {
-            return true;
+            return;
         } elseif (false === $fileParams) {
-            return false;
+            $this->addError($attribute, "Parsing error for saved validation parameters.");
+            return;
         }
 
         if ($this->session->count() >= $fileParams['maxFiles']) {
-            return false;
+            $this->addError(
+                $attribute,
+                Yii::$app->getI18n()->format(
+                    $fileParams['tooMany'],
+                    ['limit' => $fileParams['maxFiles']],
+                    Yii::$app->language
+                )
+            );
+            return;
         }
 
         // Files are uploaded only this way: 1 file by 1 request.
@@ -114,7 +125,9 @@ class File extends Model
         $model = new DynamicModel(['file' => $this->file]);
         $model->addRule(['file'], $validatorName, $fileParams)->validate();
 
-        return !$model->hasErrors();
+        if ($model->hasErrors()) {
+            $this->addError($attribute, $model->getFirstError('file'));
+        }
     }
 
     /**
@@ -125,10 +138,8 @@ class File extends Model
      */
     public function process()
     {
-        $this->initSession();
-
-        if (!$this->validateFile()) {
-            throw new ErrorException("File validation failed.", 2001); // TODO: display specific error
+        if (!$this->validate()) {
+            throw new ErrorException($this->getFirstError('file'), 2001);
         }
 
         FileHelper::createDirectory(Yii::getAlias(self::TEMPORARY_STORAGE));
@@ -167,6 +178,7 @@ class File extends Model
 
     /**
      * Removes file from temporary storage. Use this method in custom code.
+     * @return boolean
      */
     public function remove()
     {
