@@ -62,6 +62,11 @@ class ConfigAdapter extends Model
      */
     public function addValidators($model, $attribute)
     {
+        if (!isset($model, $attribute)) {
+            // TODO: initialize session for standalone form
+            return;
+        }
+
         $validators = [
             'required' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\RequiredValidator'),
             'file' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'),
