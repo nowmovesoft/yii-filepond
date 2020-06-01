@@ -128,6 +128,10 @@ class ConfigAdapter extends Model
             $this->filePond['maxFileSize'] = $validator->getSizeLimit();
         }
 
+        if (!isset($this->filePond['minFiles']) && 0 < $validator->minFiles) {
+            $this->filePond['minFiles'] = $validator->minFiles;
+        }
+
         if (!isset($this->filePond['allowMultiple'], $this->filePond['maxFiles']) && 1 !== $validator->maxFiles) {
             $this->filePond['allowMultiple'] = true;
 

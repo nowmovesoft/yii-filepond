@@ -10,25 +10,23 @@
 })(this, function() {
     'use strict';
 
-    const FILEPOND_ENDPOINTS = [
-        'process',
-        'revert',
-        'load',
-        'restore',
-        'fetch',
-        'patch',
-    ];
-
-    let instances = [];
-
     let addServerOptions = function(filePond, connection) {
-        let onLoad = (response) => {
+        const FILEPOND_ENDPOINTS = [
+            'process',
+            'revert',
+            'load',
+            'restore',
+            'fetch',
+            'patch',
+        ];
+
+        let onLoad = function(response) {
             response = JSON.parse(response);
             $('#' + connection.fieldId).siblings('.help-block').text('');
             return response.key;
         };
 
-        let onError = (response) => {
+        let onError = function(response) {
             response = JSON.parse(response);
             $('#' + connection.fieldId).siblings('.help-block').text(response.message);
             return response.message;
@@ -60,11 +58,86 @@
         }
 
         return filePond;
-    }
+    };
 
+    /**
+     * Creates validate method for `minFiles` option.
+     * @param {Object} field jQuery object of validated field
+     * @param {number} value minimum number of uploaded files
+     * @return {function}
+     */
+    let minFilesValidator = function(field, value) {
+        let helpBlock = field.siblings('.help-block');
+        let minFiles = value;
+        let errorMessage = 'You should upload more files.'; // TODO: get message from FileValidator::$tooFew
+
+        /**
+         * Validate minimum uploaded files number.
+         * @param {Object} pond FilePond instance
+         * @return {boolean}
+         */
+        return function(pond) {
+            let message = '';
+            let status = true;
+
+            if (pond.getFiles().length < minFiles) {
+                message = errorMessage;
+                status = false;
+            }
+
+            helpBlock.text(message);
+
+            return status;
+        };
+    };
+
+    let addValidators = function(field, filePond) {
+        let validators = [];
+
+        if ('minFiles' in filePond) {
+            validators.push(minFilesValidator(field, filePond['minFiles']));
+        }
+
+        return validators;
+    };
+
+    let validate = function(formId) {
+        for (let field of instances[formId]) {
+            for (let validator of field['validators']) {
+                if (!validator(field['filePond'])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+    let instances = {};
+
+    /**
+     * Registers FilePond for specified field.
+     * @param {Object} options FilePond options
+     * @param {Object} connection Yii-field to FilePond connection options
+     */
     let register = function(options, connection) {
         options = addServerOptions(options, connection);
-        instances.push(FilePond.create(document.querySelector('#' + connection.fieldId), options));
+
+        let form = $('#' + connection.fieldId).closest('form');
+        let formId = form.attr('id');
+
+        if (!(formId in instances)) {
+            instances[formId] = [];
+
+            form.on('beforeValidate', function(event, messages, deferreds) {
+                return validate($(this).attr('id'));
+            });
+        }
+
+        instances[formId].push({
+            validators: addValidators($('#' + connection.fieldId), options),
+            filePond: FilePond.create(document.querySelector('#' + connection.fieldId), options),
+        });
     };
 
     return {
