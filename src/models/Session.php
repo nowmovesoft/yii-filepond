@@ -61,7 +61,6 @@ class Session extends Model
     /**
      * Saves validators params for current upload.
      * @return boolean
-     * @throws Exception If impossible to create sessions directory.
      */
     public function saveParams()
     {

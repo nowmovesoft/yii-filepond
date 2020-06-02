@@ -62,6 +62,11 @@ class ConfigAdapter extends Model
      */
     public function addValidators($model, $attribute)
     {
+        if (!isset($model, $attribute)) {
+            // TODO: initialize session for standalone form
+            return;
+        }
+
         $validators = [
             'required' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\RequiredValidator'),
             'file' => ValidatorHelper::get($model, $attribute, 'nms\filepond\validators\FileValidator'),
@@ -121,6 +126,10 @@ class ConfigAdapter extends Model
 
         if (!isset($this->filePond['maxFileSize'])) {
             $this->filePond['maxFileSize'] = $validator->getSizeLimit();
+        }
+
+        if (!isset($this->filePond['minFiles']) && 0 < $validator->minFiles) {
+            $this->filePond['minFiles'] = $validator->minFiles;
         }
 
         if (!isset($this->filePond['allowMultiple'], $this->filePond['maxFiles']) && 1 !== $validator->maxFiles) {

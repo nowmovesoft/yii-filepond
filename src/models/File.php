@@ -108,7 +108,7 @@ class File extends Model
             return;
         }
 
-        if ($this->session->count() >= $fileParams['maxFiles']) {
+        if (0 != $fileParams['maxFiles'] && $this->session->count() >= $fileParams['maxFiles']) {
             $this->addError(
                 $attribute,
                 Yii::$app->getI18n()->format(
@@ -121,7 +121,7 @@ class File extends Model
         }
 
         // Files are uploaded only this way: 1 file by 1 request.
-        $fileParams['maxFiles'] = 1;
+        $fileParams['minFiles'] = $fileParams['maxFiles'] = 1;
         $model = new DynamicModel(['file' => $this->file]);
         $model->addRule(['file'], $validatorName, $fileParams)->validate();
 
