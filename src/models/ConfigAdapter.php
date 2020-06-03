@@ -4,8 +4,10 @@ namespace nms\filepond\models;
 
 use nms\filepond\helpers\ValidatorHelper;
 use nms\filepond\Module;
+use Yii;
 use yii\base\Model;
 use yii\helpers\FileHelper;
+use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
 
@@ -132,6 +134,14 @@ class ConfigAdapter extends Model
             $this->filePond['minFiles'] = $validator->minFiles;
         }
 
+        if (!isset($this->filePond['labelTooFew']) && isset($this->filePond['minFiles'])) {
+            $this->filePond['labelTooFew'] = Yii::$app->getI18n()->format(
+                $validator->tooFew,
+                ['limit' => $this->filePond['minFiles']],
+                Yii::$app->language
+            );
+        }
+
         if (!isset($this->filePond['allowMultiple'], $this->filePond['maxFiles']) && 1 !== $validator->maxFiles) {
             $this->filePond['allowMultiple'] = true;
 
@@ -167,6 +177,101 @@ class ConfigAdapter extends Model
 
         if (!isset($this->filePond['imageValidateSizeMinWidth']) && isset($validator->minWidth)) {
             $this->filePond['imageValidateSizeMinWidth'] = $validator->minWidth;
+        }
+    }
+
+    /**
+     * Adds translation messages to FilePond configuration.
+     */
+    public function addMessages()
+    {
+        if (!isset($this->filePond['labelIdle'])) {
+            $this->filePond['labelIdle'] = Module::t('main', 'Drag & Drop your files or ')
+                . Html::tag('span', Module::t('main', 'Browse'), ['class' => 'filepond--label-action']);
+        }
+
+        if (!isset($this->filePond['labelInvalidField'])) {
+            $this->filePond['labelInvalidField'] = Module::t('main', 'Field contains invalid files');
+        }
+
+        if (!isset($this->filePond['labelFileWaitingForSize'])) {
+            $this->filePond['labelFileWaitingForSize'] = Module::t('main', 'Waiting for size');
+        }
+
+        if (!isset($this->filePond['labelFileSizeNotAvailable'])) {
+            $this->filePond['labelFileSizeNotAvailable'] = Module::t('main', 'Size not available');
+        }
+
+        if (!isset($this->filePond['labelFileLoading'])) {
+            $this->filePond['labelFileLoading'] = Module::t('main', 'Loading');
+        }
+
+        if (!isset($this->filePond['labelFileLoadError'])) {
+            $this->filePond['labelFileLoadError'] = Module::t('main', 'Error during load');
+        }
+
+        if (!isset($this->filePond['labelFileProcessing'])) {
+            $this->filePond['labelFileProcessing'] = Module::t('main', 'Uploading');
+        }
+
+        if (!isset($this->filePond['labelFileProcessingComplete'])) {
+            $this->filePond['labelFileProcessingComplete'] = Module::t('main', 'Upload complete');
+        }
+
+        if (!isset($this->filePond['labelFileProcessingAborted'])) {
+            $this->filePond['labelFileProcessingAborted'] = Module::t('main', 'Upload cancelled');
+        }
+
+        if (!isset($this->filePond['labelFileProcessingError'])) {
+            $this->filePond['labelFileProcessingError'] = Module::t('main', 'Error during upload');
+        }
+
+        if (!isset($this->filePond['labelFileProcessingRevertError'])) {
+            $this->filePond['labelFileProcessingRevertError'] = Module::t('main', 'Error during revert');
+        }
+
+        if (!isset($this->filePond['labelFileRemoveError'])) {
+            $this->filePond['labelFileRemoveError'] = Module::t('main', 'Error during remove');
+        }
+
+        if (!isset($this->filePond['labelTapToCancel'])) {
+            $this->filePond['labelTapToCancel'] = Module::t('main', 'tap to cancel');
+        }
+
+        if (!isset($this->filePond['labelTapToRetry'])) {
+            $this->filePond['labelTapToRetry'] = Module::t('main', 'tap to retry');
+        }
+
+        if (!isset($this->filePond['labelTapToUndo'])) {
+            $this->filePond['labelTapToUndo'] = Module::t('main', 'tap to undo');
+        }
+
+        if (!isset($this->filePond['labelButtonRemoveItem'])) {
+            $this->filePond['labelButtonRemoveItem'] = Module::t('main', 'Remove');
+        }
+
+        if (!isset($this->filePond['labelButtonAbortItemLoad'])) {
+            $this->filePond['labelButtonAbortItemLoad'] = Module::t('main', 'Abort');
+        }
+
+        if (!isset($this->filePond['labelButtonRetryItemLoad'])) {
+            $this->filePond['labelButtonRetryItemLoad'] = Module::t('main', 'Retry');
+        }
+
+        if (!isset($this->filePond['labelButtonAbortItemProcessing'])) {
+            $this->filePond['labelButtonAbortItemProcessing'] = Module::t('main', 'Cancel');
+        }
+
+        if (!isset($this->filePond['labelButtonUndoItemProcessing'])) {
+            $this->filePond['labelButtonUndoItemProcessing'] = Module::t('main', 'Undo');
+        }
+
+        if (!isset($this->filePond['labelButtonRetryItemProcessing'])) {
+            $this->filePond['labelButtonRetryItemProcessing'] = Module::t('main', 'Retry');
+        }
+
+        if (!isset($this->filePond['labelButtonProcessItem'])) {
+            $this->filePond['labelButtonProcessItem'] = Module::t('main', 'Upload');
         }
     }
 

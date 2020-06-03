@@ -39,6 +39,7 @@ class FilepondWidget extends InputWidget
         $this->field->enableClientValidation = false;
         $this->config = new ConfigAdapter(['filePond' => $this->filePond]);
         $this->config->addValidators($this->model, $this->attribute);
+        $this->config->addMessages();
         $this->initConnection();
     }
 
