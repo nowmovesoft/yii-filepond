@@ -13,7 +13,26 @@ return [
      * should be translated to. For example, ['zh-CN', 'de'].
      */
     'languages' => [
-        'ru-RU',
+        'ar',
+        'da',
+        'de',
+        'es',
+        'fi',
+        'fr',
+        'id',
+        'it',
+        'ja',
+        'ko',
+        'nl',
+        'no',
+        'pl',
+        'pt-BR',
+        'pt-PT',
+        'ru',
+        'sv',
+        'tr',
+        'zh-CN',
+        'zh-TW',
     ],
 
     /**
