@@ -64,12 +64,13 @@
      * Creates validate method for `minFiles` option.
      * @param {Object} field jQuery object of validated field
      * @param {number} value minimum number of uploaded files
+     * @param {string} message error message, if files are too few
      * @return {function}
      */
-    let minFilesValidator = function(field, value) {
+    let minFilesValidator = function(field, value, message) {
         let helpBlock = field.siblings('.help-block');
         let minFiles = value;
-        let errorMessage = 'You should upload more files.'; // TODO: get message from FileValidator::$tooFew
+        let errorMessage = message;
 
         /**
          * Validate minimum uploaded files number.
@@ -95,7 +96,7 @@
         let validators = [];
 
         if ('minFiles' in filePond) {
-            validators.push(minFilesValidator(field, filePond['minFiles']));
+            validators.push(minFilesValidator(field, filePond['minFiles'], filePond['labelTooFew']));
         }
 
         return validators;
