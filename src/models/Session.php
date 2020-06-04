@@ -60,15 +60,16 @@ class Session extends Model
 
     /**
      * Saves validators params for current upload.
-     * @return boolean
      */
     public function saveParams()
     {
-        if (is_null($this->validators)) {
-            return false;
-        }
-
         $session = Yii::$app->session[$this->prefix];
+        $session['validators'] = [];
+
+        if (is_null($this->validators)) {
+            Yii::$app->session[$this->prefix] = $session;
+            return;
+        }
 
         foreach ($this->validators as $name => $validator) {
             if (is_null($validator)) {
@@ -79,8 +80,6 @@ class Session extends Model
         }
 
         Yii::$app->session[$this->prefix] = $session;
-
-        return true;
     }
 
     /**
