@@ -5,8 +5,6 @@ namespace nms\filepond\widgets;
 use nms\filepond\assets\YiiFilePondAsset;
 use nms\filepond\helpers\PluginsMapper;
 use nms\filepond\models\ConfigAdapter;
-use nms\filepond\models\File;
-use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\widgets\InputWidget;
 
@@ -24,7 +22,7 @@ class FilepondWidget extends InputWidget
     /**
      * @var array Widget connection options (Via model or standalone form)
      */
-    private $connection = ['standalone' => false];
+    private $connection = [];
 
     /**
      * @var ConfigAdapter
@@ -36,7 +34,6 @@ class FilepondWidget extends InputWidget
      */
     public function init()
     {
-        $this->field->enableClientValidation = false;
         $this->config = new ConfigAdapter(['filePond' => $this->filePond]);
         $this->config->addValidators($this->model, $this->attribute);
         $this->config->addMessages();
@@ -49,15 +46,17 @@ class FilepondWidget extends InputWidget
     private function initConnection()
     {
         $this->connection['frontend']['endpoints'] = $this->config->getEndpoints();
-        $this->connection['backend']['model'] = new File();
+        $this->connection['common'] = [
+            'fieldId' => "{$this->id}-filepond",
+            'sessionId' => $this->config->getSessionId(),
+        ];
 
         if (isset($this->field)) {
-            $this->connection['common']['fieldId'] = "{$this->id}-" . Html::getInputId($this->connection['backend']['model'], 'file');
-            $this->connection['frontend']['sessionId'] = $this->config->getSessionId();
+            $this->field->enableClientValidation = false;
+            $this->connection['backend']['standalone'] = false;
             $this->model[$this->attribute] = $this->config->getSessionId();
         } else {
             $this->connection['backend']['standalone'] = true;
-            $this->connection['backend']['formId'] = $this->id;
         }
     }
 

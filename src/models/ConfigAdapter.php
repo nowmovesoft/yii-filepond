@@ -65,7 +65,8 @@ class ConfigAdapter extends Model
     public function addValidators($model, $attribute)
     {
         if (!isset($model, $attribute)) {
-            // TODO: initialize session for standalone form
+            $this->session = new Session();
+            $this->session->saveParams();
             return;
         }
 
