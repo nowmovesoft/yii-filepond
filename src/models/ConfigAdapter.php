@@ -118,6 +118,8 @@ class ConfigAdapter extends Model
                 }
             }
 
+            $mimeTypes = array_values(array_unique($mimeTypes));
+
             if (!empty($mimeTypes)) {
                 $this->filePond['acceptedFileTypes'] = $mimeTypes;
             }
