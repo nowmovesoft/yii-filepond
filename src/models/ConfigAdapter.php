@@ -170,7 +170,7 @@ class ConfigAdapter extends Model
             $this->filePond['imageValidateSizeMaxHeight'] = $validator->maxHeight;
         }
 
-        if (!isset($this->filePond['imageValidateSizeMaxWidth']) && isset($validator->maxHeight)) {
+        if (!isset($this->filePond['imageValidateSizeMaxWidth']) && isset($validator->maxWidth)) {
             $this->filePond['imageValidateSizeMaxWidth'] = $validator->maxWidth;
         }
 

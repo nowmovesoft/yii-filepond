@@ -53,9 +53,8 @@ class ConfigAdapterTest extends \Codeception\Test\Unit
 
     /**
      * @depends testAddRequiredValidator
-     * @depends testAddFileValidatorEquals
+     * @depends testAddValidatorEquals
      * @depends testAddFileValidatorArrayKeys
-     * @depends testAddImageValidator
      */
     public function testAddValidators()
     {
@@ -96,7 +95,7 @@ class ConfigAdapterTest extends \Codeception\Test\Unit
         $this->assertFalse($adapter->filePond['required']);
     }
 
-    public function addFileValidatorEqualsProvider()
+    public function addValidatorEqualsProvider()
     {
         return [
             [
@@ -233,13 +232,101 @@ class ConfigAdapterTest extends \Codeception\Test\Unit
                 'maxFiles',
                 2,
             ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'enableClientValidation' => false],
+                ],
+                [],
+                null,
+                $this->filePondDefaultConfig(),
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'maxHeight' => 100],
+                ],
+                [
+                    'filePond' => [
+                        'imageValidateSizeMaxHeight' => 200,
+                    ],
+                ],
+                'imageValidateSizeMaxHeight',
+                200,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'maxHeight' => 100],
+                ],
+                [],
+                'imageValidateSizeMaxHeight',
+                100,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'maxWidth' => 100],
+                ],
+                [
+                    'filePond' => [
+                        'imageValidateSizeMaxWidth' => 200,
+                    ],
+                ],
+                'imageValidateSizeMaxWidth',
+                200,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'maxWidth' => 100],
+                ],
+                [],
+                'imageValidateSizeMaxWidth',
+                100,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'minHeight' => 100],
+                ],
+                [
+                    'filePond' => [
+                        'imageValidateSizeMinHeight' => 200,
+                    ],
+                ],
+                'imageValidateSizeMinHeight',
+                200,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'minHeight' => 100],
+                ],
+                [],
+                'imageValidateSizeMinHeight',
+                100,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'minWidth' => 100],
+                ],
+                [
+                    'filePond' => [
+                        'imageValidateSizeMinWidth' => 200,
+                    ],
+                ],
+                'imageValidateSizeMinWidth',
+                200,
+            ],
+            [
+                [
+                    ['file', 'nms\filepond\validators\ImageValidator', 'minWidth' => 100],
+                ],
+                [],
+                'imageValidateSizeMinWidth',
+                100,
+            ],
         ];
     }
 
     /**
-     * @dataProvider addFileValidatorEqualsProvider
+     * @dataProvider addValidatorEqualsProvider
      */
-    public function testAddFileValidatorEquals($modelConfig, $adapterConfig, $index, $expected)
+    public function testAddValidatorEquals($modelConfig, $adapterConfig, $index, $expected)
     {
         $model = $this->getModel($modelConfig);
         $adapter = new ConfigAdapter($adapterConfig);
@@ -283,14 +370,5 @@ class ConfigAdapterTest extends \Codeception\Test\Unit
         $adapter = new ConfigAdapter();
         $adapter->addValidators($model, 'file');
         $this->assertArrayNotHasKey('maxFiles', $adapter->filePond);
-    }
-
-    /**
-     * @depends testAddFileValidatorEquals
-     * @depends testAddFileValidatorArrayKeys
-     */
-    public function testAddImageValidator()
-    {
-
     }
 }
