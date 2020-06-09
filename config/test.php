@@ -23,4 +23,9 @@ return [
             'enableCsrfValidation' => false,
         ],
     ],
+    'modules' => [
+        'filepond' => [
+            'class' => 'nms\filepond\Module',
+        ],
+    ],
 ];
