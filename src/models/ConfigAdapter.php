@@ -5,11 +5,13 @@ namespace nms\filepond\models;
 use nms\filepond\helpers\ValidatorHelper;
 use nms\filepond\Module;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\base\Model;
 use yii\helpers\FileHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
+
 
 /**
  * Adopts widget configuration to FilePond configuration.
@@ -64,7 +66,7 @@ class ConfigAdapter extends Model
      */
     public function addValidators($model, $attribute)
     {
-        if (!isset($model, $attribute)) {
+        if (is_null($model) || empty($attribute)) {
             $this->session = new Session();
             $this->session->saveParams();
             return;
@@ -299,6 +301,10 @@ class ConfigAdapter extends Model
      */
     public function getSessionId()
     {
+        if (is_null($this->session)) {
+            throw new InvalidConfigException("You should add validators before getting a session identifier.", 5001);
+        }
+
         return $this->session->id;
     }
 

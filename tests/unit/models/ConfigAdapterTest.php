@@ -1,7 +1,9 @@
 <?php
 
 use nms\filepond\models\ConfigAdapter;
+use nms\filepond\models\Session;
 use yii\base\DynamicModel;
+use yii\base\InvalidConfigException;
 
 class ConfigAdapterTest extends \Codeception\Test\Unit
 {
@@ -58,7 +60,43 @@ class ConfigAdapterTest extends \Codeception\Test\Unit
      */
     public function testAddValidators()
     {
-        //$adapter = new ConfigAdapter();
+        $model = $this->getModel([
+            ['file', 'nms\filepond\validators\RequiredValidator'],
+            ['file', 'nms\filepond\validators\FileValidator'],
+            ['file', 'nms\filepond\validators\ImageValidator'],
+        ]);
+
+        $adapter = new ConfigAdapter();
+        $adapter->addValidators($model, 'file');
+        $sessionId = $adapter->getSessionId();
+        $session = new Session(['id' => $sessionId]);
+        $savedParams = $session->loadParams();
+
+        $this->assertArrayHasKey('required', $savedParams);
+        $this->assertArrayHasKey('file', $savedParams);
+        $this->assertArrayHasKey('image', $savedParams);
+    }
+
+    public function addValidatorsWithoutValidationRulesProvider()
+    {
+        return [
+            [$this->getModel(), 'file'],
+            [$this->getModel(), ''],
+            [null, 'file'],
+        ];
+    }
+
+    /**
+     * @dataProvider addValidatorsWithoutValidationRulesProvider
+     */
+    public function testAddValidatorsWithoutValidationRules($model, $attirbute)
+    {
+        $adapter = new ConfigAdapter();
+        $adapter->addValidators($model, $attirbute);
+        $sessionId = $adapter->getSessionId();
+        $session = new Session(['id' => $sessionId]);
+        $savedParams = $session->loadParams();
+        $this->assertEmpty($savedParams);
     }
 
     public function testAddRequiredValidator()
@@ -425,5 +463,33 @@ class ConfigAdapterTest extends \Codeception\Test\Unit
         $adapter = new ConfigAdapter();
         $adapter->addMessages();
         $this->assertArrayHasKey($key, $adapter->filePond);
+    }
+
+    public function testGetEndpoints()
+    {
+        Yii::$app->getModule('filepond');
+        $adapter = new ConfigAdapter();
+        $this->assertCount(6, $adapter->getEndpoints());
+    }
+
+    public function testGetSessionId()
+    {
+        $adapter = new ConfigAdapter();
+        $adapter->addValidators(null, null);
+        $this->assertEquals(Session::SESSION_ID_LENGTH, strlen($adapter->getSessionId()));
+
+        $adapter = new ConfigAdapter();
+        $this->expectException(InvalidConfigException::class);
+        $adapter->getSessionId();
+    }
+
+    public function testMake()
+    {
+        Yii::$app->getModule('filepond');
+        $adapter = new ConfigAdapter();
+        $adapter->addValidators(null, null);
+        $adapter->addMessages();
+        $this->assertNotFalse($adapter->make());
+        $this->assertEquals(1, preg_match('~^\{.*\}$~', $adapter->make()));
     }
 }
