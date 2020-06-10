@@ -125,7 +125,7 @@ class Session extends Model
     {
         $session = Yii::$app->session[$this->prefix];
 
-        if (empty($session['count'])) {
+        if (empty($session['count']) || $session['count'] < 1) {
             throw new ErrorException("Impossible to decrease uploaded files number.", 3001);
         }
 
@@ -150,13 +150,12 @@ class Session extends Model
 
     /**
      * Gets all files in current upload session
-     * @return array|null
+     * @return array
      */
     public function getFiles()
     {
         $session = Yii::$app->session[$this->prefix];
-
-        return $session['files'];
+        return $session['files'] ?? [];
     }
 
     /**

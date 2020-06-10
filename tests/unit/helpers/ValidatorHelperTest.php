@@ -1,5 +1,7 @@
 <?php
 
+namespace helpers;
+
 use nms\filepond\helpers\ValidatorHelper;
 use yii\base\DynamicModel;
 

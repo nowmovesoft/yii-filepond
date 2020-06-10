@@ -1,7 +1,10 @@
 <?php
 
+namespace models;
+
 use nms\filepond\models\ConfigAdapter;
 use nms\filepond\models\Session;
+use Yii;
 use yii\base\DynamicModel;
 use yii\base\InvalidConfigException;
 

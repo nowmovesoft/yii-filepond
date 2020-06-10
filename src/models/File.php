@@ -66,7 +66,9 @@ class File extends Model
      */
     private function initSession()
     {
-        $this->session = new Session();
+        if (!isset($this->session)) {
+            $this->session = new Session();
+        }
     }
 
     /**
@@ -147,6 +149,7 @@ class File extends Model
         $status = $this->file->saveAs(self::TEMPORARY_STORAGE . '/' . $this->id);
 
         if ($status) {
+            $this->initSession();
             $this->session->addFile($this->id, $this->file);
             $this->session->inc();
         }
@@ -160,8 +163,6 @@ class File extends Model
      */
     public function revert()
     {
-        $this->initSession();
-
         if (empty($this->id)) {
             throw new ErrorException("FilePond can't revert file by empty identifier.", 2002);
         }
@@ -169,6 +170,7 @@ class File extends Model
         $status = FileHelper::unlink($this->path);
 
         if ($status) {
+            $this->initSession();
             $this->session->removeFile($this->id);
             $this->session->dec();
         }
