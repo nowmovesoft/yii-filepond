@@ -5,7 +5,6 @@ namespace models;
 use nms\filepond\models\Session;
 use Yii;
 use yii\base\ErrorException;
-//use yii\base\DynamicModel;
 use yii\validators\Validator;
 use yii\web\UploadedFile;
 
