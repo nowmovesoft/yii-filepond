@@ -59,16 +59,26 @@ class File extends Model
     /**
      * @var Session Session object
      */
-    private $session;
+    protected $session;
 
     /**
      * Initialize session object
+     * @param array $params session params
      */
-    private function initSession()
+    protected function initSession(array $params = [])
     {
         if (!isset($this->session)) {
-            $this->session = new Session();
+            $this->session = new Session($params);
         }
+    }
+
+    /**
+     * Gets session object
+     * @return Session
+     */
+    protected function getSession()
+    {
+        return $this->session;
     }
 
     /**
@@ -92,7 +102,7 @@ class File extends Model
     public function validateFile($attribute, $params)
     {
         $this->initSession();
-        $params = $this->session->loadParams();
+        $params = $this->getSession()->loadParams();
         $fileParams = null;
 
         foreach (['image', 'file'] as $validator) {
@@ -110,7 +120,7 @@ class File extends Model
             return;
         }
 
-        if (0 != $fileParams['maxFiles'] && $this->session->count() >= $fileParams['maxFiles']) {
+        if (0 != $fileParams['maxFiles'] && $this->getSession()->count() >= $fileParams['maxFiles']) {
             $this->addError(
                 $attribute,
                 Yii::$app->getI18n()->format(
@@ -150,8 +160,8 @@ class File extends Model
 
         if ($status) {
             $this->initSession();
-            $this->session->addFile($this->id, $this->file);
-            $this->session->inc();
+            $this->getSession()->addFile($this->id, $this->file);
+            $this->getSession()->inc();
         }
 
         return $status;
@@ -171,8 +181,8 @@ class File extends Model
 
         if ($status) {
             $this->initSession();
-            $this->session->removeFile($this->id);
-            $this->session->dec();
+            $this->getSession()->removeFile($this->id);
+            $this->getSession()->dec();
         }
 
         return $status;
@@ -221,9 +231,9 @@ class File extends Model
      */
     public static function getAll($sessionId)
     {
-        $session = new Session(['id' => $sessionId]);
-        $filesInfo = $session->getFiles();
-        $session->flush();
+        $this->initSession(['id' => $sessionId]);
+        $filesInfo = $this->getSession()->getFiles();
+        $this->getSession()->flush();
 
         if (empty($filesInfo)) {
             return [];
